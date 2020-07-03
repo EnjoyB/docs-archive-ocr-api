@@ -2,6 +2,7 @@ package com.sulikdan.ocrApi.controllers;
 
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,15 +28,16 @@ public class OCRController {
   }
 
   @ResponseBody
-  @PostMapping(path = "/extractText", consumes = "multipart/form-data")
-  public ResponseEntity<String> uploadAndExtractText(
+  @PostMapping(path = "/extractText", consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
+  public String uploadAndExtractText(
       @RequestPart("file") MultipartFile file,
       @RequestParam(value = "async") Optional<String> async,
       @RequestParam(value = "highQuality") Optional<String> highQuality) {
 
-    ocrService.saveAndExtractText(file,highQuality.isPresent() ? Boolean.valueOf(highQuality.get()) : Boolean.valueOf(false));
+    //TODO file extension/format check
+    String extracted = ocrService.saveAndExtractText(file,highQuality.isPresent() ? Boolean.valueOf(highQuality.get()) : Boolean.valueOf(false));
 
-    return new ResponseEntity<String>(HttpStatus.OK);
+    return extracted;
 
   }
 }

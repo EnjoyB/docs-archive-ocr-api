@@ -9,5 +9,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface OCRService {
 
-    void saveAndExtractText(MultipartFile file, Boolean highQuality);
+    String saveAndExtractText(MultipartFile file, Boolean highQuality);
 }
