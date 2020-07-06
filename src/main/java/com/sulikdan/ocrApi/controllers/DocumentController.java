@@ -63,6 +63,7 @@ public class DocumentController {
     try {
       return objectMapper.writeValueAsString(extracted);
     } catch (JsonProcessingException e) {
+      //TODo fix error response
       e.printStackTrace();
       return "error";
     }
