@@ -51,7 +51,7 @@ public class StorageController {
             String url = MvcUriComponentsBuilder
                     .fromMethodName(StorageController.class, "getFile", path.getFileName().toString()).build().toString();
 
-            return new Document(filename, url);
+            return new Document(filename, url, ".");
         }).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(documents);

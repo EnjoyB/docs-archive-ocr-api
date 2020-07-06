@@ -58,6 +58,13 @@
 			<version>4.1.1-1.5.3</version>
 		</dependency>
 
+		<!--		Tess4j!-->
+		<dependency>
+			<groupId>net.sourceforge.tess4j</groupId>
+			<artifactId>tess4j</artifactId>
+			<version>4.3.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -28,3 +28,15 @@ to store files.
 | POST files      |    |    |
 | Delete file     |    |    |
 | Delete files    |    |    |
+
+
+## Details for MasterThesis
+* tess4j vs tesseract-platfomr vs default c++/c code
+    * looks like tess4j is weaker than t-platform
+* problem with image's dpi may need to be fixed after receiving image
+* does it makes sense to use Async connection? Storing data in memory?
+    * that would require some intelligent logic, to delete, store data as to avoid overloading
+* Every language of tesseract API should have its own istance, however its not sure
+if they are separeted, when executed. In that case it would be smarter, just to reinit every time 
+tesserat API with same/different language
+    * that would also help with leaking of undestroyed tesseract APIs

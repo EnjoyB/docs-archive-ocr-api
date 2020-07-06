@@ -12,7 +12,9 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -41,12 +43,15 @@ public class FileStorageServiceImpl implements FileStorageService {
 
   @Override
   public String saveFile(MultipartFile file) {
+    Date date = new Date();
+    System.out.println(new Timestamp(date.getTime()));
+
     try {
       Files.copy(
           file.getInputStream(),
           FileStorageServiceImpl.BASE_PATH.resolve(
-              Objects.requireNonNull(file.getOriginalFilename())));
-      return BASE_PATH + "/" + file.getOriginalFilename();
+              date.getTime() + "_" + Objects.requireNonNull(file.getOriginalFilename())));
+      return BASE_PATH + "/" + date.getTime() + "_" + file.getOriginalFilename();
     } catch (Exception e) {
       throw new RuntimeException(
           MessageFormat.format(
