@@ -25,12 +25,10 @@ import static org.bytedeco.leptonica.global.lept.pixRead;
 // TODO logger would be great
 @Profile("default")
 @Service
-public class OCRServiceTPlatform implements OCRService {
+public class OCRServiceTPlatform extends OCRServiceShared implements OCRService {
 
   private final FileStorageService fileStorageService;
   private HashMap<String, TessBaseAPI> byLanguageTPlatform;
-
-  private static final String PATH_TO_TESSDATA = "/home/madgyver/Apps/tesseractTestData/tessdata/";
 
   public OCRServiceTPlatform(FileStorageService fileStorageService) {
     this.fileStorageService = fileStorageService;

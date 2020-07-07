@@ -6,10 +6,14 @@ import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import net.sourceforge.tess4j.TesseractException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -40,7 +44,7 @@ public class DocumentController {
       path = "/document",
       consumes = "multipart/form-data",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public String uploadAndExtractText(
+  public ResponseEntity<String> uploadAndExtractText(
       @RequestPart("file") MultipartFile file,
       @RequestParam(value = "lang") Optional<String> lang,
       @RequestParam(value = "async") Optional<String> async,
@@ -61,11 +65,53 @@ public class DocumentController {
     }
 
     try {
-      return objectMapper.writeValueAsString(extracted);
+      return new ResponseEntity<String>(objectMapper.writeValueAsString(extracted), HttpStatus.OK);
     } catch (JsonProcessingException e) {
-      //TODo fix error response
+      // TODo fix error response
       e.printStackTrace();
-      return "error";
+      return new ResponseEntity<String>("error", HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @ResponseBody
+  @PostMapping(
+      path = "/documents",
+      consumes = "multipart/form-data",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> uploadAndExtractText(
+      @RequestPart("files") MultipartFile[] files,
+      @RequestParam(value = "lang") Optional<String> lang,
+      @RequestParam(value = "async") Optional<String> async,
+      @RequestParam(value = "highQuality") Optional<String> highQuality) {
+
+    // TODO file extension/format check
+    // Works with single documents with multi documents, will be problem
+    List<Document> documentList = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+
+      try {
+        Document extracted =
+            ocrService.saveAndExtractText(
+                file,
+                lang.map(String::toLowerCase).orElse("eng"),
+                highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE));
+        documentList.add(extracted);
+      } catch (TesseractException e) {
+        System.out.println("Error from tesseract!");
+        e.printStackTrace();
+      }
+    }
+
+    try {
+      //      return objectMapper.writeValueAsString(extracted);
+      return new ResponseEntity<String>(
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentList),
+          HttpStatus.OK);
+    } catch (JsonProcessingException e) {
+      // TODo fix error response
+      e.printStackTrace();
+      return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
     }
   }
 

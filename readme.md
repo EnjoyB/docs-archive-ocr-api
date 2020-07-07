@@ -40,3 +40,10 @@ to store files.
 if they are separeted, when executed. In that case it would be smarter, just to reinit every time 
 tesserat API with same/different language
     * that would also help with leaking of undestroyed tesseract APIs
+* 
+* Api should take multiple Files
+* Async method looks like required rather than wait unknown amount of time for OCR processing...
+* what about separting controller, for every file format new one and same for services??
+  * could decrease coupling
+  * but will increase amount of code
+* OCR mode not yet checked, init - containes multiple overload methods but is missing documentation ..

@@ -14,12 +14,11 @@ import java.util.HashMap;
 //TODO This service is not used/implemented/developed any longer!!!!
 @Profile("backUp")
 @Service
-public class OCRServiceTess4j implements OCRService {
+public class OCRServiceTess4j extends OCRServiceShared implements OCRService {
 
     private FileStorageService fileStorageService;
     private HashMap<String , ITesseract> byLanguageITesseract;
     // TODO it's physical address! Need to consider include it to project ...
-    private final static String PATH_TO_TESSDATA = "/home/madgyver/Apps/tesseractTestData/tessdata/";
 
     /**
      * English language for tesseract is taken as defautl!
