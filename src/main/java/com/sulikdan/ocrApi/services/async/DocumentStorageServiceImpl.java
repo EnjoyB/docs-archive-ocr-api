@@ -1,11 +1,9 @@
-package com.sulikdan.ocrApi.services;
+package com.sulikdan.ocrApi.services.async;
 
-import com.sulikdan.ocrApi.controllers.DocumentController;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsync;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package com.sulikdan.ocrApi.services;
+package com.sulikdan.ocrApi.services.async;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsync;

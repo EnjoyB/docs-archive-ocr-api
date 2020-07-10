@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface OCRService {
 
+  final static String PATH_TO_TESSDATA = "src/main/resources/tessdata";
+
   Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality);
 
   Document extractTextFromFile(String savedPath, String lang, Boolean highQuality);

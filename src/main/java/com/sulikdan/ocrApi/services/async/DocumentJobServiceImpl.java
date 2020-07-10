@@ -1,8 +1,10 @@
-package com.sulikdan.ocrApi.services;
+package com.sulikdan.ocrApi.services.async;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsync;
 import com.sulikdan.ocrApi.entities.DocumentStatus;
+import com.sulikdan.ocrApi.services.FileStorageService;
+import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.scheduling.annotation.Async;
 
 import java.nio.file.Path;
