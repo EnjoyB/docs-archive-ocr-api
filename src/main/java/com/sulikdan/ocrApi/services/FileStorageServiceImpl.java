@@ -42,16 +42,19 @@ public class FileStorageServiceImpl implements FileStorageService {
   }
 
   @Override
-  public String saveFile(MultipartFile file) {
+  public Path saveFile(MultipartFile file) {
     Date date = new Date();
     System.out.println(new Timestamp(date.getTime()));
+
 
     try {
       Files.copy(
           file.getInputStream(),
           FileStorageServiceImpl.BASE_PATH.resolve(
               date.getTime() + "_" + Objects.requireNonNull(file.getOriginalFilename())));
-      return BASE_PATH + "/" + date.getTime() + "_" + file.getOriginalFilename();
+        return FileStorageServiceImpl.BASE_PATH.resolve(
+                date.getTime() + "_" + Objects.requireNonNull(file.getOriginalFilename()));
+//      return BASE_PATH + "/" + date.getTime() + "_" + file.getOriginalFilename();
     } catch (Exception e) {
       throw new RuntimeException(
           MessageFormat.format(

@@ -1,7 +1,6 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
-import net.sourceforge.tess4j.TesseractException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -11,8 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface OCRService {
 
-  Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality)
-      throws TesseractException;
+  Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality);
+
+  Document extractTextFromFile(String savedPath, String lang, Boolean highQuality);
 
   boolean addTesseractLanguage(String language);
 }

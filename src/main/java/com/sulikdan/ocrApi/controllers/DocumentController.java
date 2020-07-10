@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsync;
 import com.sulikdan.ocrApi.entities.DocumentStatus;
+import com.sulikdan.ocrApi.services.DocumentJobServiceImpl;
+import com.sulikdan.ocrApi.services.DocumentStorageService;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,7 @@ public class DocumentController {
 
   @Autowired private TaskExecutor taskExecutor;
 
+  private final DocumentStorageService documentStorageService;
   private final OCRService ocrService;
   private final FileStorageService fileStorageService;
   private ObjectMapper mapper;
@@ -46,17 +49,24 @@ public class DocumentController {
   public static final HashMap<String, Document> documentMap = new HashMap<>();
   public static final HashMap<String, DocumentAsync> documentAsyncMap = new HashMap<>();
 
-//  public static final String getDocumentMapping =
-//      MvcUriComponentsBuilder.fromMethodName(DocumentController.class, "getDocument").build().toString();
-//  public static final String getDocumentStatusMapping =
-//      MvcUriComponentsBuilder.fromMethodName(DocumentController.class, "getDocumentStatus").build()
-//          .toString();
+  //  public static final String getDocumentMapping =
+  //      MvcUriComponentsBuilder.fromMethodName(DocumentController.class,
+  // "getDocument").build().toString();
+  //  public static final String getDocumentStatusMapping =
+  //      MvcUriComponentsBuilder.fromMethodName(DocumentController.class,
+  // "getDocumentStatus").build()
+  //          .toString();
 
   public DocumentController(
-      TaskExecutor taskExecutor, OCRService ocrService, FileStorageService fileStorageService) {
+      TaskExecutor taskExecutor,
+      DocumentStorageService documentStorageService,
+      OCRService ocrService,
+      FileStorageService fileStorageService) {
     this.taskExecutor = taskExecutor;
+    this.documentStorageService = documentStorageService;
     this.ocrService = ocrService;
     this.fileStorageService = fileStorageService;
+
     //    this.taskExecutor = ;
     mapper = new ObjectMapper();
   }
@@ -113,8 +123,8 @@ public class DocumentController {
       DocumentAsync returnStatus =
           DocumentAsync.builder()
               .documentStatus(DocumentStatus.PROCESSING)
-              .currentStatusLink(generateUriForAsyncStatus(savedPath, "getDocumentStatus", ""))
-              .resultLink(generateUriForAsyncStatus(savedPath, "getDocument", ""))
+              .currentStatusLink(documentStorageService.getGetDocumentAsyncUri() + savedPath.getFileName().toString())
+              .resultLink(documentStorageService.getGetDocumentUri() + savedPath.getFileName().toString())
               .build();
 
       //      taskExecutor.execute();
@@ -124,13 +134,20 @@ public class DocumentController {
       //              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
       //      try {
       taskExecutor.execute(
-//          new DocumentJob(
-          new DocumentJob(
+          new DocumentJobServiceImpl(
               fileStorageService,
               ocrService,
+              documentStorageService,
               savedPath,
               lang.map(String::toLowerCase).orElse("eng"),
               highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
+      //          new DocumentJob(
+      //          new DocumentJob(
+      //              fileStorageService,
+      //              ocrService,
+      //              savedPath,
+      //              lang.map(String::toLowerCase).orElse("eng"),
+      //              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
       //                processFileAsync(
       //                    savedPath,
       //                    lang.map(String::toLowerCase).orElse("eng"),
@@ -154,24 +171,24 @@ public class DocumentController {
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsyncList));
   }
 
-  @DeleteMapping("/document/{fileName}")
+  @DeleteMapping("/async/document/{fileName}")
   public void deleteDocument(@PathVariable String fileName) {
     //    This should be for async
     //    fi
   }
 
-  @GetMapping("/document/{fileName}")
+  @GetMapping("/async/document/{fileName}")
   public String getDocument(@PathVariable String fileName) throws JsonProcessingException {
-    Document document = documentMap.get(fileName);
+    Document document = documentStorageService.getDocumentMap().get(fileName);
     if (document != null) {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(document);
     }
     return mapper.writerWithDefaultPrettyPrinter().writeValueAsString("null");
   }
 
-  @GetMapping("/documentStatus/{fileName}")
+  @GetMapping("/async/documentStatus/{fileName}")
   public String getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
-    DocumentAsync documentAsync = documentAsyncMap.get(fileName);
+    DocumentAsync documentAsync = documentStorageService.getDocumentAsyncMap().get(fileName);
     if (documentAsync != null) {
       return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsync);
     }
@@ -211,10 +228,17 @@ public class DocumentController {
     if (documentAsync == null || documentAsync.getDocumentStatus() == DocumentStatus.PROCESSING) {
       DocumentAsync newDef =
           DocumentAsync.builder()
-//              .currentStatusLink(generateUriForAsyncStatus(filePath, "getDocumentStatus", ""))
-              .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}").build().toString())
+              //              .currentStatusLink(generateUriForAsyncStatus(filePath,
+              // "getDocumentStatus", ""))
+              .currentStatusLink(
+                  MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}")
+                      .build()
+                      .toString())
               .documentStatus(DocumentStatus.COMPLETED)
-              .resultLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}").build().toString())
+              .resultLink(
+                  MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}")
+                      .build()
+                      .toString())
               .build();
       synchronized (lock) {
         documentAsyncMap.put(filePath.getFileName().toString(), newDef);
@@ -238,47 +262,51 @@ public class DocumentController {
     //    return MvcUriComponentsBuilder.fromMethodCall(on(DocumentController.class).getDocument())
   }
 
-//  @Async("threadPoolTaskExecutor")
-//  private class DocumentJob implements Runnable {
-//
-//    private FileStorageService fileStorageService;
-//    private OCRService ocrService;
-//    private Path filePath;
-//    private String lang;
-//    private Boolean highQuality;
-//
-//    public DocumentJob(
-//        FileStorageService fileStorageService,
-//        OCRService ocrService,
-//        Path filePath,
-//        String lang,
-//        Boolean highQuality) {
-//      this.fileStorageService = fileStorageService;
-//      this.ocrService = ocrService;
-//      this.filePath = filePath;
-//      this.lang = lang;
-//      this.highQuality = highQuality;
-//    }
-//
-//    @Override
-//    public void run() {
-//      Document document = ocrService.extractTextFromFile(filePath.toString(), lang, highQuality);
-//      System.out.println("Received document:" + document.toString());
-//      DocumentAsync documentAsync = documentAsyncMap.get(filePath.getFileName().toString());
-//
-//      if (documentAsync == null || documentAsync.getDocumentStatus() == DocumentStatus.PROCESSING) {
-//        DocumentAsync newDef =
-//            DocumentAsync.builder()
-//                         .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}").build().toString())
-//                .documentStatus(DocumentStatus.COMPLETED)
-//                         .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}").build().toString())
-//                .build();
-//        synchronized (lock) {
-//          documentAsyncMap.put(filePath.getFileName().toString(), newDef);
-//        }
-//      }
-//
-//      documentMap.put(filePath.getFileName().toString(), document);
-//    }
-//  }
+  //  @Async("threadPoolTaskExecutor")
+  //  private class DocumentJob implements Runnable {
+  //
+  //    private FileStorageService fileStorageService;
+  //    private OCRService ocrService;
+  //    private Path filePath;
+  //    private String lang;
+  //    private Boolean highQuality;
+  //
+  //    public DocumentJob(
+  //        FileStorageService fileStorageService,
+  //        OCRService ocrService,
+  //        Path filePath,
+  //        String lang,
+  //        Boolean highQuality) {
+  //      this.fileStorageService = fileStorageService;
+  //      this.ocrService = ocrService;
+  //      this.filePath = filePath;
+  //      this.lang = lang;
+  //      this.highQuality = highQuality;
+  //    }
+  //
+  //    @Override
+  //    public void run() {
+  //      Document document = ocrService.extractTextFromFile(filePath.toString(), lang,
+  // highQuality);
+  //      System.out.println("Received document:" + document.toString());
+  //      DocumentAsync documentAsync = documentAsyncMap.get(filePath.getFileName().toString());
+  //
+  //      if (documentAsync == null || documentAsync.getDocumentStatus() ==
+  // DocumentStatus.PROCESSING) {
+  //        DocumentAsync newDef =
+  //            DocumentAsync.builder()
+  //
+  // .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}").build().toString())
+  //                .documentStatus(DocumentStatus.COMPLETED)
+  //
+  // .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}").build().toString())
+  //                .build();
+  //        synchronized (lock) {
+  //          documentAsyncMap.put(filePath.getFileName().toString(), newDef);
+  //        }
+  //      }
+  //
+  //      documentMap.put(filePath.getFileName().toString(), document);
+  //    }
+  //  }
 }

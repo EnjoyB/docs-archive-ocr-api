@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 import static org.bytedeco.leptonica.global.lept.pixDestroy;
@@ -37,14 +36,20 @@ public class OCRServiceTPlatform extends OCRServiceShared implements OCRService 
   }
 
   @Override
-  public Document saveAndExtractText(MultipartFile file, String lang ,Boolean highQuality) {
-    if( !addTesseractLanguage(lang) ){
-      //TODO return error - unsupported language!
+  public Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality) {
+    if (!addTesseractLanguage(lang)) {
+      // TODO return error - unsupported language!
       return null;
     }
 
-    String savedPath = fileStorageService.saveFile(file);
+//    String savedPath = fileStorageService.saveFile(file.to);
+//
+//    return extractTextFromFile(savedPath, lang, highQuality);
+    return null;
+  }
 
+  @Override
+  public Document extractTextFromFile(String savedPath, String lang, Boolean highQuality) {
     if (savedPath.length() <= 0) throw new RuntimeException("File not here");
 
     TessBaseAPI tessBaseAPI = byLanguageTPlatform.get("eng");
@@ -74,9 +79,7 @@ public class OCRServiceTPlatform extends OCRServiceShared implements OCRService 
 
   @Override
   public boolean addTesseractLanguage(String language) {
-    if( byLanguageTPlatform.containsKey(language) )
-      return true;
-
+    if (byLanguageTPlatform.containsKey(language)) return true;
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
 
