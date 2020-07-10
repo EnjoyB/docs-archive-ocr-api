@@ -3,18 +3,27 @@ package com.sulikdan.ocrApi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.DocumentAsync;
+import com.sulikdan.ocrApi.entities.DocumentStatus;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
-import net.sourceforge.tess4j.TesseractException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Daniel Šulik on 03-Jul-20
@@ -26,93 +35,123 @@ import java.util.Optional;
 @RequestMapping("ocr")
 public class DocumentController {
 
+  @Autowired private TaskExecutor taskExecutor;
+
   private final OCRService ocrService;
   private final FileStorageService fileStorageService;
-  private MultipartFile file;
-  private Boolean async;
-  private Boolean highQuality;
-  private ObjectMapper objectMapper;
+  private ObjectMapper mapper;
+  private final Object lock = new Object();
 
-  public DocumentController(OCRService ocrService, FileStorageService fileStorageService) {
+  // For async communication
+  public static final HashMap<String, Document> documentMap = new HashMap<>();
+  public static final HashMap<String, DocumentAsync> documentAsyncMap = new HashMap<>();
+
+//  public static final String getDocumentMapping =
+//      MvcUriComponentsBuilder.fromMethodName(DocumentController.class, "getDocument").build().toString();
+//  public static final String getDocumentStatusMapping =
+//      MvcUriComponentsBuilder.fromMethodName(DocumentController.class, "getDocumentStatus").build()
+//          .toString();
+
+  public DocumentController(
+      TaskExecutor taskExecutor, OCRService ocrService, FileStorageService fileStorageService) {
+    this.taskExecutor = taskExecutor;
     this.ocrService = ocrService;
     this.fileStorageService = fileStorageService;
-    objectMapper = new ObjectMapper();
+    //    this.taskExecutor = ;
+    mapper = new ObjectMapper();
   }
 
   @ResponseBody
   @PostMapping(
-      path = "/document",
+      path = "/sync/document",
       consumes = "multipart/form-data",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> uploadAndExtractText(
-      @RequestPart("file") MultipartFile file,
-      @RequestParam(value = "lang") Optional<String> lang,
-      @RequestParam(value = "async") Optional<String> async,
-      @RequestParam(value = "highQuality") Optional<String> highQuality) {
-
-    // TODO file extension/format check
-    // Works with single documents with multi documents, will be problem
-    Document extracted = null;
-    try {
-      extracted =
-          ocrService.saveAndExtractText(
-              file,
-              lang.map(String::toLowerCase).orElse("eng"),
-              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE));
-    } catch (TesseractException e) {
-      System.out.println("Error from tesseract!");
-      e.printStackTrace();
-    }
-
-    try {
-      return new ResponseEntity<String>(objectMapper.writeValueAsString(extracted), HttpStatus.OK);
-    } catch (JsonProcessingException e) {
-      // TODo fix error response
-      e.printStackTrace();
-      return new ResponseEntity<String>("error", HttpStatus.BAD_REQUEST);
-    }
-  }
-
-  @ResponseBody
-  @PostMapping(
-      path = "/documents",
-      consumes = "multipart/form-data",
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> uploadAndExtractText(
+  public ResponseEntity<String> uploadAndExtractTextSync(
       @RequestPart("files") MultipartFile[] files,
       @RequestParam(value = "lang") Optional<String> lang,
-      @RequestParam(value = "async") Optional<String> async,
-      @RequestParam(value = "highQuality") Optional<String> highQuality) {
+      @RequestParam(value = "highQuality") Optional<String> highQuality)
+      throws JsonProcessingException {
 
     // TODO file extension/format check
     // Works with single documents with multi documents, will be problem
-    List<Document> documentList = new ArrayList<>();
+
+    List<Document> resultDocumentList = new ArrayList<>();
 
     for (MultipartFile file : files) {
+      Path savedPath = fileStorageService.saveFile(file);
 
-      try {
-        Document extracted =
-            ocrService.saveAndExtractText(
-                file,
-                lang.map(String::toLowerCase).orElse("eng"),
-                highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE));
-        documentList.add(extracted);
-      } catch (TesseractException e) {
-        System.out.println("Error from tesseract!");
-        e.printStackTrace();
+      resultDocumentList.add(
+          processFileSync(
+              savedPath.toString(),
+              lang.map(String::toLowerCase).orElse("eng"),
+              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
+    }
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultDocumentList));
+  }
+
+  @ResponseBody
+  @PostMapping(
+      path = "/async/document",
+      consumes = "multipart/form-data",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> uploadAndExtractTextAsync(
+      @RequestPart("files") MultipartFile[] files,
+      @RequestParam(value = "lang") Optional<String> lang,
+      @RequestParam(value = "highQuality") Optional<String> highQuality)
+      throws JsonProcessingException {
+
+    // TODO file extension/format check
+    // Works with single documents with multi documents, will be problem
+    List<DocumentAsync> documentAsyncList = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+      Path savedPath = fileStorageService.saveFile(file);
+
+      System.out.println("Async sending work to do!");
+      DocumentAsync returnStatus =
+          DocumentAsync.builder()
+              .documentStatus(DocumentStatus.PROCESSING)
+              .currentStatusLink(generateUriForAsyncStatus(savedPath, "getDocumentStatus", ""))
+              .resultLink(generateUriForAsyncStatus(savedPath, "getDocument", ""))
+              .build();
+
+      //      taskExecutor.execute();
+      //      asyncExecutor().execute(processFileAsync(
+      //              savedPath,
+      //              lang.map(String::toLowerCase).orElse("eng"),
+      //              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
+      //      try {
+      taskExecutor.execute(
+//          new DocumentJob(
+          new DocumentJob(
+              fileStorageService,
+              ocrService,
+              savedPath,
+              lang.map(String::toLowerCase).orElse("eng"),
+              highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE)));
+      //                processFileAsync(
+      //                    savedPath,
+      //                    lang.map(String::toLowerCase).orElse("eng"),
+      //                    highQuality.map(Boolean::valueOf).orElseGet(() -> Boolean.FALSE));
+      //
+      //      } catch (ExecutionException e) {
+      //        e.printStackTrace();
+      //      } catch (InterruptedException e) {
+      //        e.printStackTrace();
+      //      }
+      //      CompletableFuture.
+
+      documentAsyncList.add(returnStatus);
+      synchronized (lock) {
+        documentAsyncMap.put(savedPath.getFileName().toString(), returnStatus);
       }
     }
 
-    try {
-      //      return objectMapper.writeValueAsString(extracted);
-      return new ResponseEntity<String>(
-          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentList),
-          HttpStatus.OK);
-    } catch (JsonProcessingException e) {
-      // TODo fix error response
-      e.printStackTrace();
-      return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
-    }
+    System.out.println("Finnishing in controller!");
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsyncList));
   }
 
   @DeleteMapping("/document/{fileName}")
@@ -122,9 +161,21 @@ public class DocumentController {
   }
 
   @GetMapping("/document/{fileName}")
-  public String getDocument(@PathVariable String fileName) {
-    //    This should be for async
-    return "null";
+  public String getDocument(@PathVariable String fileName) throws JsonProcessingException {
+    Document document = documentMap.get(fileName);
+    if (document != null) {
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(document);
+    }
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString("null");
+  }
+
+  @GetMapping("/documentStatus/{fileName}")
+  public String getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
+    DocumentAsync documentAsync = documentAsyncMap.get(fileName);
+    if (documentAsync != null) {
+      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsync);
+    }
+    return mapper.writerWithDefaultPrettyPrinter().writeValueAsString("null");
   }
 
   /**
@@ -144,4 +195,90 @@ public class DocumentController {
         return false;
     }
   }
+
+  private Document processFileSync(String filePath, String lang, Boolean highQuality) {
+    return ocrService.extractTextFromFile(filePath, lang, highQuality);
+  }
+
+  @Async("threadPoolTaskExecutor")
+  public CompletableFuture<Void> processFileAsync(Path filePath, String lang, Boolean highQuality)
+      throws ExecutionException, InterruptedException {
+
+    Document document = ocrService.extractTextFromFile(filePath.toString(), lang, highQuality);
+    System.out.println("Received document:" + document.toString());
+    DocumentAsync documentAsync = documentAsyncMap.get(filePath.getFileName().toString());
+
+    if (documentAsync == null || documentAsync.getDocumentStatus() == DocumentStatus.PROCESSING) {
+      DocumentAsync newDef =
+          DocumentAsync.builder()
+//              .currentStatusLink(generateUriForAsyncStatus(filePath, "getDocumentStatus", ""))
+              .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}").build().toString())
+              .documentStatus(DocumentStatus.COMPLETED)
+              .resultLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}").build().toString())
+              .build();
+      synchronized (lock) {
+        documentAsyncMap.put(filePath.getFileName().toString(), newDef);
+      }
+    }
+
+    documentMap.put(filePath.getFileName().toString(), document);
+    return CompletableFuture.completedFuture(null);
+  }
+
+  private static String generateUriForAsyncStatus(
+      Path filePath, String methodName, String methodUri) {
+    return MvcUriComponentsBuilder.fromController(DocumentController.class).toString()
+        + methodUri
+        + filePath.getFileName().toString();
+    //    return MvcUriComponentsBuilder.fromMethodName(
+    //            DocumentController.class, methodName, filePath.getFileName().toString())
+    //        .build()
+    //        .toString();
+
+    //    return MvcUriComponentsBuilder.fromMethodCall(on(DocumentController.class).getDocument())
+  }
+
+//  @Async("threadPoolTaskExecutor")
+//  private class DocumentJob implements Runnable {
+//
+//    private FileStorageService fileStorageService;
+//    private OCRService ocrService;
+//    private Path filePath;
+//    private String lang;
+//    private Boolean highQuality;
+//
+//    public DocumentJob(
+//        FileStorageService fileStorageService,
+//        OCRService ocrService,
+//        Path filePath,
+//        String lang,
+//        Boolean highQuality) {
+//      this.fileStorageService = fileStorageService;
+//      this.ocrService = ocrService;
+//      this.filePath = filePath;
+//      this.lang = lang;
+//      this.highQuality = highQuality;
+//    }
+//
+//    @Override
+//    public void run() {
+//      Document document = ocrService.extractTextFromFile(filePath.toString(), lang, highQuality);
+//      System.out.println("Received document:" + document.toString());
+//      DocumentAsync documentAsync = documentAsyncMap.get(filePath.getFileName().toString());
+//
+//      if (documentAsync == null || documentAsync.getDocumentStatus() == DocumentStatus.PROCESSING) {
+//        DocumentAsync newDef =
+//            DocumentAsync.builder()
+//                         .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/document/{filename}").build().toString())
+//                .documentStatus(DocumentStatus.COMPLETED)
+//                         .currentStatusLink(MvcUriComponentsBuilder.fromMappingName("/ocr/async/documentStatus/{filename}").build().toString())
+//                .build();
+//        synchronized (lock) {
+//          documentAsyncMap.put(filePath.getFileName().toString(), newDef);
+//        }
+//      }
+//
+//      documentMap.put(filePath.getFileName().toString(), document);
+//    }
+//  }
 }
