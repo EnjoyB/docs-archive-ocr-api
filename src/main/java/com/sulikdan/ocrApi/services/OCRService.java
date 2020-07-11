@@ -10,11 +10,23 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface OCRService {
 
-  final static String PATH_TO_TESSDATA = "src/main/resources/tessdata";
+  static final String PATH_TO_TESSDATA = "src/main/resources/tessdata";
 
   Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality);
 
-  Document extractTextFromFile(String savedPath, String lang, Boolean highQuality);
+  Document extractTextFromFile(
+      MultipartFile file,
+      String newFileName,
+      String lang,
+      Boolean multipageTiff,
+      Boolean highQuality);
 
   boolean addTesseractLanguage(String language);
+  //  Document extractTextFromMultiPageTiff(Path savedPath, String lang, Boolean highQuality);
+  //  Document extractTextFromMultiPageTiff(ByteAr ,Path savedPath, String lang, Boolean
+  // highQuality);
+
+  //  Document extractTextFromFile(Path savedPath, String lang, Boolean highQuality);
+
+
 }

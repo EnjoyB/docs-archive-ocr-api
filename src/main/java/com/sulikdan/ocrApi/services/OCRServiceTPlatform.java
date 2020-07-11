@@ -1,27 +1,29 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
+import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.leptonica.PIX;
+import org.bytedeco.leptonica.PIXA;
+import org.bytedeco.leptonica.global.lept;
 import org.bytedeco.tesseract.TessBaseAPI;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import javax.print.Doc;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
-
-import static org.bytedeco.leptonica.global.lept.pixDestroy;
-import static org.bytedeco.leptonica.global.lept.pixRead;
 
 /**
  * Created by Daniel Šulik on 03-Jul-20
  *
  * <p>Class OCRServiceImpl is used for .....
  */
-// TODO logger would be great
+@Slf4j
 @Profile("default")
 @Service
 public class OCRServiceTPlatform implements OCRService {
@@ -42,40 +44,73 @@ public class OCRServiceTPlatform implements OCRService {
       return null;
     }
 
-//    String savedPath = fileStorageService.saveFile(file.to);
-//
-//    return extractTextFromFile(savedPath, lang, highQuality);
+    //    String savedPath = fileStorageService.saveFile(file.to);
+    //
+    //    return extractTextFromFile(savedPath, lang, highQuality);
     return null;
   }
 
   @Override
-  public Document extractTextFromFile(String savedPath, String lang, Boolean highQuality) {
-    if (savedPath.length() <= 0) throw new RuntimeException("File not here");
+  public Document extractTextFromFile(
+          MultipartFile file, String newFileName, String lang, Boolean multipageTiff, Boolean highQuality) {
+    Document extractedFile = null;
+
+    if ( multipageTiff ){
+
+    } else {
+
+    }
+
+    return extractedFile;
+  }
+
+  //  @Override
+  public Document extractTextFromFile(Path savedPath, String lang, Boolean highQuality) {
+    if (savedPath.toString().length() <= 0) throw new RuntimeException("File not here");
 
     TessBaseAPI tessBaseAPI = byLanguageTPlatform.get("eng");
 
-    PIX image = pixRead(savedPath);
+    ArrayList<String> pages = new ArrayList<>();
+    PIXA images = lept.pixaReadMultipageTiff(savedPath.toString());
+    //    lept.pixaReadMem
 
-    tessBaseAPI.SetImage(image);
+    for (int i = 0; i < images.n(); i++) {
 
-    // Get OCR result
-    BytePointer outText = tessBaseAPI.GetUTF8Text();
-    System.out.println("Text extracted of length:\n" + outText.getString().length());
+      // Getting a page from whole file
+      PIX image = images.pix(i);
 
-    String extractedText = outText.getString();
+      // Setting page to OCR
+      tessBaseAPI.SetImage(image);
+
+      // Get OCR result
+      BytePointer outText = tessBaseAPI.GetUTF8Text();
+      log.debug(
+          "Extracted text from file "
+              + savedPath.getFileName().toString()
+              + " with size: "
+              + outText.getString().length());
+      System.out.println("Text extracted of length:\n" + outText.getString().length());
+
+      pages.add(outText.getString());
+
+      // Destroy used object and release memory
+      outText.deallocate();
+    }
 
     // Destroy used object and release memory
-    outText.deallocate();
-    pixDestroy(image);
+    lept.pixaDestroy(images);
+
     try {
-      Files.deleteIfExists(new File(savedPath).toPath());
+      Files.deleteIfExists(savedPath);
     } catch (IOException e) {
       System.err.println("Problem with deleting file: " + e.getMessage());
       e.printStackTrace();
     }
 
-    return new Document(savedPath.substring(savedPath.lastIndexOf('/') + 1), "", extractedText);
+    return new Document(savedPath.getFileName().toString(), "", pages);
   }
+
+  private String extractTextFromPix(Path savedPath, String lang, Boolean highQuality) {}
 
   @Override
   public boolean addTesseractLanguage(String language) {

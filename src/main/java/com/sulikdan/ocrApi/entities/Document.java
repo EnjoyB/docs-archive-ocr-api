@@ -1,5 +1,7 @@
 package com.sulikdan.ocrApi.entities;
 
+import java.util.List;
+
 /**
  * Created by Daniel Šulik on 02-Jul-20
  *
@@ -8,21 +10,30 @@ package com.sulikdan.ocrApi.entities;
 public class Document {
   //    Multi
   private String name;
+  private String origName;
   private String url;
-  private String text;
+  private List<String> pages;
 
-  public Document(String name, String url, String text) {
+
+  public Document(String name, String url, List<String> pages) {
     this.name = name;
     this.url = url;
-    this.text = text;
+    this.pages = pages;
   }
 
-  public String getName() {
-    return this.name;
+  public Document(String name, String origName, String url, List<String> pages) {
+    this.name     = name;
+    this.origName = origName;
+    this.url      = url;
+    this.pages    = pages;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public List<String> getPages() {
+    return pages;
+  }
+
+  public void setPages(List<String> pages) {
+    this.pages = pages;
   }
 
   public String getUrl() {
@@ -33,11 +44,11 @@ public class Document {
     this.url = url;
   }
 
-  public String getText() {
-    return text;
+  public String getName() {
+    return name;
   }
 
-  public void setText(String text) {
-    this.text = text;
+  public void setName(String name) {
+    this.name = name;
   }
 }

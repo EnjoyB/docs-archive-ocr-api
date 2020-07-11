@@ -1,8 +1,8 @@
 package com.sulikdan.ocrApi.services.async;
 
 import com.sulikdan.ocrApi.entities.Document;
-import com.sulikdan.ocrApi.entities.DocumentAsync;
-import com.sulikdan.ocrApi.entities.DocumentStatus;
+import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
+import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.scheduling.annotation.Async;
@@ -59,26 +59,20 @@ public class DocumentJobServiceImpl implements DocumentJobService {
 
   @Override
   public void run() {
-    Document document = ocrService.extractTextFromFile(filePath.toString(), lang, highQuality);
+    Document document = ocrService.extractTextFromFile(filePath, lang, highQuality);
     System.out.println("Received document:" + document.toString());
-    DocumentAsync documentAsync =
+    DocumentAsyncStatus documentAsyncStatus =
         documentStorageService.getDocumentAsyncMap().get(filePath.getFileName().toString());
 
-    if (documentAsync == null || documentAsync.getDocumentStatus() == DocumentStatus.PROCESSING) {
-      DocumentAsync newDef =
-          DocumentAsync.builder()
-              .currentStatusLink(
-                  documentStorageService.getGetDocumentAsyncUri()
-                      + filePath.getFileName().toString())
-              .documentStatus(DocumentStatus.COMPLETED)
-              .currentStatusLink(
-                  documentStorageService.getGetDocumentUri() + filePath.getFileName().toString())
-              .build();
+//    if (documentAsyncStatus == null || documentAsyncStatus.getDocumentProcessStatus() == DocumentProcessStatus.PROCESSING) {
+      DocumentAsyncStatus newAsyncStatus = DocumentAsyncStatus.generateDocumentAsyncStatus(
+              documentStorageService, DocumentProcessStatus.PROCESSING, filePath);
+
       //      synchronized (lock) {
-      documentStorageService.getDocumentAsyncMap().put(filePath.getFileName().toString(), newDef);
+      documentStorageService.getDocumentAsyncMap().put(filePath.getFileName().toString(), newAsyncStatus);
       //        documentAsyncMap.put(filePath.getFileName().toString(), newDef);
       //      }
-    }
+//    }
 
     documentStorageService.getDocumentMap().put(filePath.getFileName().toString(), document);
   }

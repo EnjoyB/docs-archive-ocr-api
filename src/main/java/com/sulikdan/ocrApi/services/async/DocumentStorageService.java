@@ -1,9 +1,9 @@
 package com.sulikdan.ocrApi.services.async;
 
 import com.sulikdan.ocrApi.entities.Document;
-import com.sulikdan.ocrApi.entities.DocumentAsync;
+import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Daniel Šulik on 10-Jul-20
@@ -18,8 +18,8 @@ public interface DocumentStorageService {
     void setGetDocumentAsyncUri(String uri);
     String getGetDocumentAsyncUri();
 
-    HashMap<String, Document> getDocumentMap();
-    HashMap<String, DocumentAsync> getDocumentAsyncMap();
+    ConcurrentHashMap<String, Document> getDocumentMap();
+    ConcurrentHashMap<String, DocumentAsyncStatus> getDocumentAsyncMap();
 
 
 //    void addDocumentToDocumentMap(String fileName, Document document);

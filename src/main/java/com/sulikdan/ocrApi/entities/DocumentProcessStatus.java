@@ -5,7 +5,7 @@ package com.sulikdan.ocrApi.entities;
  * <p>
  * Class DocumentStatus is used for .....
  */
-public enum DocumentStatus {
+public enum DocumentProcessStatus {
     PROCESSING,
     COMPLETED,
     DELETED

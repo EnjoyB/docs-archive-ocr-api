@@ -1,11 +1,11 @@
 package com.sulikdan.ocrApi.services.async;
 
 import com.sulikdan.ocrApi.entities.Document;
-import com.sulikdan.ocrApi.entities.DocumentAsync;
+import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Daniel Šulik on 10-Jul-20
@@ -17,16 +17,16 @@ import java.util.HashMap;
 public class DocumentStorageServiceImpl implements DocumentStorageService {
 
   // For async communication
-  protected final HashMap<String, Document> documentMap;
-  protected final HashMap<String, DocumentAsync> documentAsyncMap;
+  protected final ConcurrentHashMap<String, Document> documentMap;
+  protected final ConcurrentHashMap<String, DocumentAsyncStatus> documentAsyncMap;
 
   // Uris
   protected String getDocumentUri = "";
   protected String getDocumentAsyncUri = "";
 
   public DocumentStorageServiceImpl() {
-    this.documentMap = new HashMap<>();
-    this.documentAsyncMap = new HashMap<>();
+    this.documentMap = new ConcurrentHashMap<>();
+    this.documentAsyncMap = new ConcurrentHashMap<>();
     System.out.println("Created HashMaps!");
     log.debug("Created HashMaps!");
 
@@ -36,12 +36,12 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
   }
 
   @Override
-  public HashMap<String, Document> getDocumentMap() {
+  public ConcurrentHashMap<String, Document> getDocumentMap() {
     return documentMap;
   }
 
   @Override
-  public HashMap<String, DocumentAsync> getDocumentAsyncMap() {
+  public ConcurrentHashMap<String, DocumentAsyncStatus> getDocumentAsyncMap() {
     return documentAsyncMap;
   }
 
