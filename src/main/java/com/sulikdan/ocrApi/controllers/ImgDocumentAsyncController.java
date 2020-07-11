@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +34,7 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
   private final DocumentStorageService documentStorageService;
   private final OCRService ocrService;
   private final FileStorageService fileStorageService;
-  private ObjectMapper mapper;
-
-  //  private final Object lock = new Object();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public ImgDocumentAsyncController(
       TaskExecutor taskExecutor,
@@ -48,8 +45,6 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
     this.documentStorageService = documentStorageService;
     this.ocrService = ocrService;
     this.fileStorageService = fileStorageService;
-
-    mapper = new ObjectMapper();
   }
 
   @ResponseBody
@@ -61,35 +56,33 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
       @DefaultValue("true") @RequestParam(value = "highQuality") Boolean highQuality)
       throws JsonProcessingException {
 
-    // TODO file extension/format check
-    // Works with single documents with multi documents, will be problem
     checkSupportedLanguages(lang);
 
     List<DocumentAsyncStatus> documentAsyncStatusList = new ArrayList<>();
 
     for (MultipartFile file : files) {
-      Path savedPath = fileStorageService.saveFile(file);
+      String newPrefix = generateNamePrefix();
+      String newFileName = newPrefix + file.getOriginalFilename();
 
       System.out.println("Async sending work to do!");
-      DocumentAsyncStatus returnStatus =
+      DocumentAsyncStatus returnAsyncStatus =
           DocumentAsyncStatus.generateDocumentAsyncStatus(
-              documentStorageService, DocumentProcessStatus.PROCESSING, savedPath);
+              documentStorageService, DocumentProcessStatus.PROCESSING, newFileName);
 
       taskExecutor.execute(
           new DocumentJobServiceImpl(
               fileStorageService,
               ocrService,
               documentStorageService,
-              savedPath,
+              file,
+              newPrefix,
               lang,
+              multiPageFile,
               highQuality));
 
-      documentAsyncStatusList.add(returnStatus);
-      //      synchronized (lock) {
-      documentStorageService
-          .getDocumentAsyncMap()
-          .put(savedPath.getFileName().toString(), returnStatus);
-      //      }
+      documentAsyncStatusList.add(returnAsyncStatus);
+
+      documentStorageService.getDocumentAsyncMap().put(newFileName, returnAsyncStatus);
     }
 
     System.out.println("Finnishing in controller!");
@@ -99,8 +92,11 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
 
   @DeleteMapping("/async/document/{fileName}")
   public void deleteDocument(@PathVariable String fileName) {
-    //    This should be for async
-    //    fi
+
+    if (documentStorageService.getDocumentMap().containsKey(fileName)) {
+      documentStorageService.getDocumentMap().remove(fileName);
+      documentStorageService.getDocumentAsyncMap().remove(fileName);
+    }
   }
 
   @GetMapping("/{fileName}")

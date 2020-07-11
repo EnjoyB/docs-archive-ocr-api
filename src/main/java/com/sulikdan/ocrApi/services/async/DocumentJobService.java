@@ -9,6 +9,4 @@ import java.nio.file.Path;
  */
 public interface DocumentJobService extends Runnable {
 
-    void setJobParams(Path filePath, String lang, Boolean highQuality);
-
 }

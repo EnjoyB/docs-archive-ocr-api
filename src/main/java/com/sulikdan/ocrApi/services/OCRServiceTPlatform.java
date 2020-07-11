@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.Doc;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -52,16 +51,69 @@ public class OCRServiceTPlatform implements OCRService {
 
   @Override
   public Document extractTextFromFile(
-          MultipartFile file, String newFileName, String lang, Boolean multipageTiff, Boolean highQuality) {
-    Document extractedFile = null;
+      Path savedFilePath,
+      String origFileName,
+      String lang,
+      Boolean multipageTiff,
+      Boolean highQuality) {
 
-    if ( multipageTiff ){
+    if (savedFilePath.toString().length() <= 0)
+      throw new RuntimeException("File not here or WrongFile");
+    // TODO
+
+    Document extractedFile =
+        new Document(savedFilePath.getFileName().toString(), origFileName, "", new ArrayList<>());
+
+    if (multipageTiff) {
+      PIXA images = lept.pixaReadMultipageTiff(savedFilePath.toString());
+
+      for (int i = 0; i < images.n(); i++) {
+
+        String scannedPage =
+            extractTextFromPix(
+                images.pix(i), savedFilePath.getFileName().toString(), lang, highQuality);
+        extractedFile.getPages().add(scannedPage);
+      }
+
+      // free resources
+      lept.pixaDestroy(images);
 
     } else {
+      PIX image = lept.pixRead(savedFilePath.toString());
+      String scannedPage =
+          extractTextFromPix(image, savedFilePath.getFileName().toString(), lang, highQuality);
+      extractedFile.getPages().add(scannedPage);
 
+      // free resources
+      lept.pixDestroy(image);
     }
 
     return extractedFile;
+  }
+
+  private String extractTextFromPix(
+      PIX image, String newFileName, String lang, Boolean highQuality) {
+    // this is not going to work out with multiple threads ...
+    // TODO recreate new instance for every file?
+    TessBaseAPI tessBaseAPI = byLanguageTPlatform.get(lang);
+    //    TessBaseAPI tessBaseAPI = CreateNewInstanceOfTessBaseAPI(lang);
+    //    Don't forget on every new instance to delete it!!!! TODO
+
+    // Setting page to OCR
+    tessBaseAPI.SetImage(image);
+
+    // Get OCR result
+    BytePointer outText = tessBaseAPI.GetUTF8Text();
+    log.debug(
+        "Extracted text from file " + newFileName + " with size: " + outText.getString().length());
+    System.out.println("Text extracted of length:\n" + outText.getString().length());
+
+    String outputString = outText.getString();
+
+    // Destroy used object and release memory
+    outText.deallocate();
+
+    return outputString;
   }
 
   //  @Override
@@ -110,8 +162,6 @@ public class OCRServiceTPlatform implements OCRService {
     return new Document(savedPath.getFileName().toString(), "", pages);
   }
 
-  private String extractTextFromPix(Path savedPath, String lang, Boolean highQuality) {}
-
   @Override
   public boolean addTesseractLanguage(String language) {
     if (byLanguageTPlatform.containsKey(language)) return true;
@@ -124,5 +174,24 @@ public class OCRServiceTPlatform implements OCRService {
     }
     byLanguageTPlatform.put(language, newTessBaseAPI);
     return true;
+  }
+
+  /**
+   * Need to be tweaked with queue containing available instances? to avoid recreate them!!! TODO !!
+   *
+   * @param language
+   * @return
+   */
+  public TessBaseAPI CreateNewInstanceOfTessBaseAPI(String language) {
+
+    TessBaseAPI newTessBaseAPI = new TessBaseAPI();
+
+    if (newTessBaseAPI.Init(PATH_TO_TESSDATA, language) != 0) {
+      System.err.println("Could not initialize tesseract, with language: " + language);
+      throw new RuntimeException(
+          "Couldn't init another TessBaseAPI instance with language: " + language);
+    }
+
+    return newTessBaseAPI;
   }
 }

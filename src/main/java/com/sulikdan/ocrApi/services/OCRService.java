@@ -3,6 +3,8 @@ package com.sulikdan.ocrApi.services;
 import com.sulikdan.ocrApi.entities.Document;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
+
 /**
  * Created by Daniel Šulik on 03-Jul-20
  *
@@ -15,8 +17,8 @@ public interface OCRService {
   Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality);
 
   Document extractTextFromFile(
-      MultipartFile file,
-      String newFileName,
+      Path savedFilePath,
+      String origFileName,
       String lang,
       Boolean multipageTiff,
       Boolean highQuality);

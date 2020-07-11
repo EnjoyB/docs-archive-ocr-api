@@ -1,5 +1,8 @@
 package com.sulikdan.ocrApi.entities;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 /**
@@ -7,6 +10,8 @@ import java.util.List;
  *
  * <p>Class Document is used for .....
  */
+@Getter
+@Setter
 public class Document {
   //    Multi
   private String name;
@@ -26,29 +31,5 @@ public class Document {
     this.origName = origName;
     this.url      = url;
     this.pages    = pages;
-  }
-
-  public List<String> getPages() {
-    return pages;
-  }
-
-  public void setPages(List<String> pages) {
-    this.pages = pages;
-  }
-
-  public String getUrl() {
-    return this.url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 }

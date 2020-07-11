@@ -33,8 +33,7 @@ public class ImgDocumentController extends SharedControllerLogic {
   private final DocumentStorageService documentStorageService;
   private final OCRService ocrService;
   private final FileStorageService fileStorageService;
-  private ObjectMapper mapper;
-  //  private final Object lock = new Object();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   // For async communication
   public static final HashMap<String, Document> documentMap = new HashMap<>();
@@ -47,9 +46,6 @@ public class ImgDocumentController extends SharedControllerLogic {
     this.documentStorageService = documentStorageService;
     this.ocrService = ocrService;
     this.fileStorageService = fileStorageService;
-
-    //    this.taskExecutor = ;
-    mapper = new ObjectMapper();
   }
 
   @ResponseBody
@@ -61,27 +57,29 @@ public class ImgDocumentController extends SharedControllerLogic {
       @DefaultValue("true") @RequestParam(value = "highQuality") Boolean highQuality)
       throws JsonProcessingException {
 
-    // TODO file extension/format check
-    // Works with single documents with multi documents, will be problem
     checkSupportedLanguages(lang);
 
     List<Document> resultDocumentList = new ArrayList<>();
 
     for (MultipartFile file : files) {
-      Path savedPath = fileStorageService.saveFile(file);
+      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
 
-      resultDocumentList.add(processFileSync(savedPath, lang, highQuality));
+      resultDocumentList.add(processFileSync(savedFilePath, file.getOriginalFilename(), lang, multiPageFile, highQuality));
     }
 
     return ResponseEntity.status(HttpStatus.OK)
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(resultDocumentList));
   }
 
+  // TODO delete after refactoring!!
   private Document processFileSync(Path filePath, String lang, Boolean highQuality) {
-    return ocrService.extractTextFromFile(filePath, lang, highQuality);
+    return ocrService.extractTextFromFile(null, "filePath", lang, false, highQuality);
   }
 
-
+  private Document processFileSync(
+      Path savedFilePath, String origFileName, String lang, Boolean multipageTiff, Boolean highQuality) {
+    return ocrService.extractTextFromFile(savedFilePath, origFileName, lang, multipageTiff, highQuality);
+  }
 
   private static String generateUriForAsyncStatus(
       Path filePath, String methodName, String methodUri) {

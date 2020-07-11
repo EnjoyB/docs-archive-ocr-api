@@ -23,12 +23,19 @@ public class DocumentAsyncStatus {
   private String currentStatusLink;
   private String resultLink;
 
+  /**
+   * A method to generate DocumentAsyncStatus consisting of provided params.
+   * @param service for getting uri to corrent API mapping
+   * @param processStatus new processStatus of OCR to corresponding document
+   * @param newFileName string representing new file name assignet to file to avoid collision with same names
+   * @return
+   */
   public static DocumentAsyncStatus generateDocumentAsyncStatus(
-      DocumentStorageService service, DocumentProcessStatus processStatus, Path savedPath) {
+      DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
     return DocumentAsyncStatus.builder()
         .documentProcessStatus(processStatus)
-        .currentStatusLink(service.getGetDocumentAsyncUri() + savedPath.getFileName().toString())
-        .resultLink(service.getGetDocumentUri() + savedPath.getFileName().toString())
+        .currentStatusLink(service.getGetDocumentAsyncUri() + newFileName)
+        .resultLink(service.getGetDocumentUri() + newFileName)
         .build();
   }
 }

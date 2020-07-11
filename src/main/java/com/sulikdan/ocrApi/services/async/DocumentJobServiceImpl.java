@@ -6,8 +6,8 @@ import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
 
 /**
  * Created by Daniel Šulik on 09-Jul-20
@@ -18,62 +18,62 @@ import java.nio.file.Path;
 // @Service
 public class DocumentJobServiceImpl implements DocumentJobService {
 
-  private FileStorageService fileStorageService;
-  private OCRService ocrService;
-  private DocumentStorageService documentStorageService;
+  private final FileStorageService fileStorageService;
+  private final OCRService ocrService;
+  private final DocumentStorageService documentStorageService;
 
-  private Path filePath;
-  private String lang;
-  private Boolean highQuality;
+  private final MultipartFile file;
+  private final String newFilePrefix;
 
-  public DocumentJobServiceImpl(
-      FileStorageService fileStorageService,
-      OCRService ocrService,
-      DocumentStorageService documentStorageService) {
-    this.fileStorageService = fileStorageService;
-    this.ocrService = ocrService;
-    this.documentStorageService = documentStorageService;
-  }
+  private final String lang;
+  private final Boolean multipageTiff;
+  private final Boolean highQuality;
 
   public DocumentJobServiceImpl(
       FileStorageService fileStorageService,
       OCRService ocrService,
       DocumentStorageService documentStorageService,
-      Path filePath,
+      MultipartFile file,
+      String newFilePrefix,
       String lang,
+      Boolean multipageTiff,
       Boolean highQuality) {
     this.fileStorageService = fileStorageService;
     this.ocrService = ocrService;
     this.documentStorageService = documentStorageService;
-    this.filePath = filePath;
+    this.file = file;
+    this.newFilePrefix = newFilePrefix;
     this.lang = lang;
+    this.multipageTiff = multipageTiff;
     this.highQuality = highQuality;
   }
 
-  @Override
-  public void setJobParams(Path filePath, String lang, Boolean highQuality) {
-    this.filePath = filePath;
-    this.lang = lang;
-    this.highQuality = highQuality;
-  }
 
   @Override
   public void run() {
-    Document document = ocrService.extractTextFromFile(filePath, lang, highQuality);
-    System.out.println("Received document:" + document.toString());
-    DocumentAsyncStatus documentAsyncStatus =
-        documentStorageService.getDocumentAsyncMap().get(filePath.getFileName().toString());
+    String newFileNameForMapping = newFilePrefix + file.getOriginalFilename();
 
-//    if (documentAsyncStatus == null || documentAsyncStatus.getDocumentProcessStatus() == DocumentProcessStatus.PROCESSING) {
-      DocumentAsyncStatus newAsyncStatus = DocumentAsyncStatus.generateDocumentAsyncStatus(
-              documentStorageService, DocumentProcessStatus.PROCESSING, filePath);
+    // Extracting data from file
+    Document resultDoc =
+        ocrService.extractTextFromFile(
+            file, newFileNameForMapping, lang, multipageTiff, highQuality);
 
-      //      synchronized (lock) {
-      documentStorageService.getDocumentAsyncMap().put(filePath.getFileName().toString(), newAsyncStatus);
-      //        documentAsyncMap.put(filePath.getFileName().toString(), newDef);
-      //      }
-//    }
+    System.out.println("Received resultDoc:" + resultDoc.toString());
 
-    documentStorageService.getDocumentMap().put(filePath.getFileName().toString(), document);
+    // Look up the current resultDoc's status
+    DocumentAsyncStatus documentAsyncStatus = documentStorageService.getDocumentAsyncMap().get(newFileNameForMapping);
+
+    // Generating new Status
+    DocumentAsyncStatus newAsyncStatus =
+        DocumentAsyncStatus.generateDocumentAsyncStatus(
+            documentStorageService, DocumentProcessStatus.PROCESSING, newFileNameForMapping);
+
+    // Creating new Satus for requester know about status
+    documentStorageService
+        .getDocumentAsyncMap()
+        .put(newFileNameForMapping, newAsyncStatus);
+
+    // Updating result to be available to requester
+    documentStorageService.getDocumentMap().put(newFileNameForMapping, resultDoc);
   }
 }
