@@ -33,7 +33,7 @@ public class StorageController {
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
         String message = "";
         try {
-            fileStorageService.saveFile(file);
+            fileStorageService.saveFile(file, SharedControllerLogic.generateNamePrefix());
 
             message = "Uploaded the file successfully: " + file.getOriginalFilename();
             return ResponseEntity.status(HttpStatus.OK).body(new String(message));
@@ -51,7 +51,7 @@ public class StorageController {
             String url = MvcUriComponentsBuilder
                     .fromMethodName(StorageController.class, "getFile", path.getFileName().toString()).build().toString();
 
-            return new Document(filename, url, ".");
+            return new Document(filename, url, null);
         }).collect(Collectors.toList());
 
         return ResponseEntity.status(HttpStatus.OK).body(documents);

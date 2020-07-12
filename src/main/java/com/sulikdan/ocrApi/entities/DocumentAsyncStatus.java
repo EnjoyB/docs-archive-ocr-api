@@ -19,6 +19,12 @@ public class DocumentAsyncStatus {
 
   public DocumentAsyncStatus() {}
 
+  public DocumentAsyncStatus(DocumentProcessStatus documentProcessStatus, String currentStatusLink, String resultLink) {
+    this.documentProcessStatus = documentProcessStatus;
+    this.currentStatusLink     = currentStatusLink;
+    this.resultLink            = resultLink;
+  }
+
   private DocumentProcessStatus documentProcessStatus;
   private String currentStatusLink;
   private String resultLink;
@@ -34,7 +40,7 @@ public class DocumentAsyncStatus {
       DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
     return DocumentAsyncStatus.builder()
         .documentProcessStatus(processStatus)
-        .currentStatusLink(service.getGetDocumentAsyncUri() + newFileName)
+        .currentStatusLink(service.getGetDocumentUri() + newFileName + "/documentStatus")
         .resultLink(service.getGetDocumentUri() + newFileName)
         .build();
   }

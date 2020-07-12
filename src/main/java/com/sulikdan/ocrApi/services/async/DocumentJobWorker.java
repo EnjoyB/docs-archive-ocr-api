@@ -6,8 +6,8 @@ import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
 
 /**
  * Created by Daniel Šulik on 09-Jul-20
@@ -15,65 +15,60 @@ import org.springframework.web.multipart.MultipartFile;
  * <p>Class DocumentManagerServiceImpl is used for .....
  */
 @Async("threadPoolTaskExecutor")
-// @Service
-public class DocumentJobServiceImpl implements DocumentJobService {
+public class DocumentJobWorker implements Runnable {
 
   private final FileStorageService fileStorageService;
   private final OCRService ocrService;
   private final DocumentStorageService documentStorageService;
 
-  private final MultipartFile file;
-  private final String newFilePrefix;
+  private final Path savedFilePath;
+  private final String origFileName;
 
   private final String lang;
   private final Boolean multipageTiff;
   private final Boolean highQuality;
 
-  public DocumentJobServiceImpl(
+  public DocumentJobWorker(
       FileStorageService fileStorageService,
       OCRService ocrService,
       DocumentStorageService documentStorageService,
-      MultipartFile file,
-      String newFilePrefix,
+      Path savedFilePath,
+      String origFileName,
       String lang,
       Boolean multipageTiff,
       Boolean highQuality) {
     this.fileStorageService = fileStorageService;
     this.ocrService = ocrService;
     this.documentStorageService = documentStorageService;
-    this.file = file;
-    this.newFilePrefix = newFilePrefix;
+    this.savedFilePath = savedFilePath;
+    this.origFileName = origFileName;
     this.lang = lang;
     this.multipageTiff = multipageTiff;
     this.highQuality = highQuality;
   }
 
-
   @Override
   public void run() {
-    String newFileNameForMapping = newFilePrefix + file.getOriginalFilename();
+    String fileNameOnServer = savedFilePath.getFileName().toString();
 
     // Extracting data from file
     Document resultDoc =
         ocrService.extractTextFromFile(
-            file, newFileNameForMapping, lang, multipageTiff, highQuality);
+            savedFilePath, origFileName, lang, multipageTiff, highQuality);
 
     System.out.println("Received resultDoc:" + resultDoc.toString());
 
     // Look up the current resultDoc's status
-    DocumentAsyncStatus documentAsyncStatus = documentStorageService.getDocumentAsyncMap().get(newFileNameForMapping);
+    DocumentAsyncStatus documentAsyncStatus =
+        documentStorageService.getDocumentAsyncMap().get(fileNameOnServer);
 
-    // Generating new Status
-    DocumentAsyncStatus newAsyncStatus =
-        DocumentAsyncStatus.generateDocumentAsyncStatus(
-            documentStorageService, DocumentProcessStatus.PROCESSING, newFileNameForMapping);
-
-    // Creating new Satus for requester know about status
-    documentStorageService
-        .getDocumentAsyncMap()
-        .put(newFileNameForMapping, newAsyncStatus);
+    // Setting new Status
+    documentAsyncStatus.setDocumentProcessStatus(DocumentProcessStatus.COMPLETED);
 
     // Updating result to be available to requester
-    documentStorageService.getDocumentMap().put(newFileNameForMapping, resultDoc);
+    documentStorageService.getDocumentMap().put(fileNameOnServer, resultDoc);
+
+    //Deleting file
+    fileStorageService.deleteFile(savedFilePath);
   }
 }

@@ -7,9 +7,8 @@ import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
-import com.sulikdan.ocrApi.services.async.DocumentJobServiceImpl;
+import com.sulikdan.ocrApi.services.async.DocumentJobWorker;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,9 +51,9 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextAsync(
       @RequestPart("files") MultipartFile[] files,
-      @DefaultValue("eng") @RequestParam(value = "lang") String lang,
-      @DefaultValue("false") @RequestParam(value = "multiPageFile") Boolean multiPageFile,
-      @DefaultValue("true") @RequestParam(value = "highQuality") Boolean highQuality)
+      @RequestParam(value = "lang", defaultValue = "eng") String lang,
+      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
       throws JsonProcessingException {
 
     checkSupportedLanguages(lang);
@@ -61,28 +61,28 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
     List<DocumentAsyncStatus> documentAsyncStatusList = new ArrayList<>();
 
     for (MultipartFile file : files) {
-      String newPrefix = generateNamePrefix();
-      String newFileName = newPrefix + file.getOriginalFilename();
+      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
+      String savedFileName = savedFilePath.getFileName().toString();
 
       System.out.println("Async sending work to do!");
       DocumentAsyncStatus returnAsyncStatus =
           DocumentAsyncStatus.generateDocumentAsyncStatus(
-              documentStorageService, DocumentProcessStatus.PROCESSING, newFileName);
+              documentStorageService, DocumentProcessStatus.PROCESSING, savedFileName);
 
       taskExecutor.execute(
-          new DocumentJobServiceImpl(
+          new DocumentJobWorker(
               fileStorageService,
               ocrService,
               documentStorageService,
-              file,
-              newPrefix,
+              savedFilePath,
+              file.getOriginalFilename(),
               lang,
               multiPageFile,
               highQuality));
 
       documentAsyncStatusList.add(returnAsyncStatus);
 
-      documentStorageService.getDocumentAsyncMap().put(newFileName, returnAsyncStatus);
+      documentStorageService.getDocumentAsyncMap().put(savedFileName, returnAsyncStatus);
     }
 
     System.out.println("Finnishing in controller!");
@@ -90,7 +90,7 @@ public class ImgDocumentAsyncController extends SharedControllerLogic {
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsyncStatusList));
   }
 
-  @DeleteMapping("/async/document/{fileName}")
+  @DeleteMapping("/{fileName}")
   public void deleteDocument(@PathVariable String fileName) {
 
     if (documentStorageService.getDocumentMap().containsKey(fileName)) {

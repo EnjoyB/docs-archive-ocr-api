@@ -52,9 +52,9 @@ public class ImgDocumentController extends SharedControllerLogic {
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextSync(
       @RequestPart("files") MultipartFile[] files,
-      @DefaultValue("eng") @RequestParam(value = "lang") String lang,
-      @DefaultValue("false") @RequestParam(value = "multiPageFile") Boolean multiPageFile,
-      @DefaultValue("true") @RequestParam(value = "highQuality") Boolean highQuality)
+      @RequestParam(value = "lang", defaultValue = "eng") String lang,
+      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
       throws JsonProcessingException {
 
     checkSupportedLanguages(lang);
@@ -65,6 +65,7 @@ public class ImgDocumentController extends SharedControllerLogic {
       Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
 
       resultDocumentList.add(processFileSync(savedFilePath, file.getOriginalFilename(), lang, multiPageFile, highQuality));
+      fileStorageService.deleteFile(savedFilePath);
     }
 
     return ResponseEntity.status(HttpStatus.OK)

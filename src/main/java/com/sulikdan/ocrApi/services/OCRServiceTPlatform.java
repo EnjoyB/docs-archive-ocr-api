@@ -93,6 +93,12 @@ public class OCRServiceTPlatform implements OCRService {
 
   private String extractTextFromPix(
       PIX image, String newFileName, String lang, Boolean highQuality) {
+
+    if (!addTesseractLanguage(lang)) {
+      // TODO return error - unsupported language!
+      return null;
+    }
+
     // this is not going to work out with multiple threads ...
     // TODO recreate new instance for every file?
     TessBaseAPI tessBaseAPI = byLanguageTPlatform.get(lang);
@@ -114,52 +120,6 @@ public class OCRServiceTPlatform implements OCRService {
     outText.deallocate();
 
     return outputString;
-  }
-
-  //  @Override
-  public Document extractTextFromFile(Path savedPath, String lang, Boolean highQuality) {
-    if (savedPath.toString().length() <= 0) throw new RuntimeException("File not here");
-
-    TessBaseAPI tessBaseAPI = byLanguageTPlatform.get("eng");
-
-    ArrayList<String> pages = new ArrayList<>();
-    PIXA images = lept.pixaReadMultipageTiff(savedPath.toString());
-    //    lept.pixaReadMem
-
-    for (int i = 0; i < images.n(); i++) {
-
-      // Getting a page from whole file
-      PIX image = images.pix(i);
-
-      // Setting page to OCR
-      tessBaseAPI.SetImage(image);
-
-      // Get OCR result
-      BytePointer outText = tessBaseAPI.GetUTF8Text();
-      log.debug(
-          "Extracted text from file "
-              + savedPath.getFileName().toString()
-              + " with size: "
-              + outText.getString().length());
-      System.out.println("Text extracted of length:\n" + outText.getString().length());
-
-      pages.add(outText.getString());
-
-      // Destroy used object and release memory
-      outText.deallocate();
-    }
-
-    // Destroy used object and release memory
-    lept.pixaDestroy(images);
-
-    try {
-      Files.deleteIfExists(savedPath);
-    } catch (IOException e) {
-      System.err.println("Problem with deleting file: " + e.getMessage());
-      e.printStackTrace();
-    }
-
-    return new Document(savedPath.getFileName().toString(), "", pages);
   }
 
   @Override
