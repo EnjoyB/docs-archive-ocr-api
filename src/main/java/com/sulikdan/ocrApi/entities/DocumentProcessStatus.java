@@ -7,6 +7,5 @@ package com.sulikdan.ocrApi.entities;
  */
 public enum DocumentProcessStatus {
     PROCESSING,
-    COMPLETED,
-    DELETED
+    COMPLETED
 }

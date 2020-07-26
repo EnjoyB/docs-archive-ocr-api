@@ -47,3 +47,24 @@ tesserat API with same/different language
   * could decrease coupling
   * but will increase amount of code
 * OCR mode not yet checked, init - containes multiple overload methods but is missing documentation ..
+## 11.7.2020
+* actual trouble decision between storing files:
+    * right to memory - memory demanding
+    * storing to filesystem - decrease performance
+* another trouble with instance of TessBaseApi
+    * Every thread may need new instance of TessBaseApi
+    * With everyLanguage it gets more tricky as I would need to take care of available instances of everyLanguage and not to train all the time new instance...
+    * maybe to use ConcuncurrentMap with Queue? That would require new object that will take care of problems to be thread-safe manager
+### Future stuff
+* config passed through api
+    * bind them to user
+* work effectively with TessBaseApi instances
+
+### Docker stuff
+* create jar with all dependencies: `mvn clean compile assembly:single`
+* build image: `docker build -t sulikdan/java-rest-api-ocr .`
+* start it: `docker run -t -i -p 8080:8080 sulikdan/java-rest-api-ocr -tessdata /usr/share/tessdata`
+`mvn clean package spring-boot:repackage`
+
+* delete containers: `docker rm -vf $(docker ps -a -q)`
+* delete images: `docker rmi -f $(docker images -a -q)`

@@ -10,14 +10,21 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.Resource;
-import java.util.concurrent.Executor;
+import java.util.Arrays;
 
 @SpringBootApplication
 @EnableAsync
 public class OcrApiApplication implements CommandLineRunner {
   @Resource FileStorageService fileStorageService;
+  public static String pathToTessdata = "";
 
   public static void main(String[] args) {
+    System.out.println("Input arguments:\n" + Arrays.toString(args) + "\n" );
+    if (args.length >= 2 && args[0].contains("tessdata") && !args[1].isEmpty()) {
+      pathToTessdata = args[1];
+      System.out.println("Path to test data: " + pathToTessdata);
+    }
+
     SpringApplication.run(OcrApiApplication.class, args);
   }
 

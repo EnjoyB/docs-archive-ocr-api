@@ -1,5 +1,6 @@
 package com.sulikdan.ocrApi.services;
 
+import com.sulikdan.ocrApi.OcrApiApplication;
 import com.sulikdan.ocrApi.entities.Document;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
@@ -128,7 +129,7 @@ public class OCRServiceTPlatform implements OCRService {
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
 
-    if (newTessBaseAPI.Init(PATH_TO_TESSDATA, language) != 0) {
+    if (newTessBaseAPI.Init(OcrApiApplication.pathToTessdata, language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       return false;
     }
@@ -146,7 +147,7 @@ public class OCRServiceTPlatform implements OCRService {
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
 
-    if (newTessBaseAPI.Init(PATH_TO_TESSDATA, language) != 0) {
+    if (newTessBaseAPI.Init(OcrApiApplication.pathToTessdata, language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       throw new RuntimeException(
           "Couldn't init another TessBaseAPI instance with language: " + language);
