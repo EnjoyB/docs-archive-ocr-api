@@ -3,6 +3,7 @@ package com.sulikdan.ocrApi.services.async;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
+import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import org.springframework.scheduling.annotation.Async;
@@ -24,9 +25,7 @@ public class DocumentJobWorker implements Runnable {
   private final Path savedFilePath;
   private final String origFileName;
 
-  private final String lang;
-  private final Boolean multipageTiff;
-  private final Boolean highQuality;
+  private final OcrConfig ocrConfig;
 
   public DocumentJobWorker(
       FileStorageService fileStorageService,
@@ -34,17 +33,13 @@ public class DocumentJobWorker implements Runnable {
       DocumentStorageService documentStorageService,
       Path savedFilePath,
       String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality) {
+      OcrConfig ocrConfig) {
     this.fileStorageService = fileStorageService;
     this.ocrService = ocrService;
     this.documentStorageService = documentStorageService;
     this.savedFilePath = savedFilePath;
     this.origFileName = origFileName;
-    this.lang = lang;
-    this.multipageTiff = multipageTiff;
-    this.highQuality = highQuality;
+    this.ocrConfig = ocrConfig;
   }
 
   @Override
@@ -52,9 +47,7 @@ public class DocumentJobWorker implements Runnable {
     String fileNameOnServer = savedFilePath.getFileName().toString();
 
     // Extracting data from file
-    Document resultDoc =
-        ocrService.extractTextFromFile(
-            savedFilePath, origFileName, lang, multipageTiff, highQuality);
+    Document resultDoc = ocrService.extractTextFromFile(savedFilePath, origFileName, ocrConfig);
 
     System.out.println("Received resultDoc:" + resultDoc.toString());
 
@@ -68,7 +61,7 @@ public class DocumentJobWorker implements Runnable {
     // Updating result to be available to requester
     documentStorageService.getDocumentMap().put(fileNameOnServer, resultDoc);
 
-    //Deleting file
+    // Deleting file
     fileStorageService.deleteFile(savedFilePath);
   }
 }

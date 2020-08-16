@@ -2,6 +2,7 @@ package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.OcrApiApplication;
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.OcrConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.leptonica.PIX;
@@ -12,8 +13,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,11 +51,7 @@ public class OCRServiceTPlatform implements OCRService {
 
   @Override
   public Document extractTextFromFile(
-      Path savedFilePath,
-      String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality) {
+      Path savedFilePath, String origFileName, OcrConfig ocrConfig) {
 
     if (savedFilePath.toString().length() <= 0)
       throw new RuntimeException("File not here or WrongFile");
@@ -65,14 +60,13 @@ public class OCRServiceTPlatform implements OCRService {
     Document extractedFile =
         new Document(savedFilePath.getFileName().toString(), origFileName, "", new ArrayList<>());
 
-    if (multipageTiff) {
+    if (ocrConfig.getMultiPages()) {
       PIXA images = lept.pixaReadMultipageTiff(savedFilePath.toString());
 
       for (int i = 0; i < images.n(); i++) {
 
         String scannedPage =
-            extractTextFromPix(
-                images.pix(i), savedFilePath.getFileName().toString(), lang, highQuality);
+            extractTextFromPix(images.pix(i), savedFilePath.getFileName().toString(), ocrConfig);
         extractedFile.getPages().add(scannedPage);
       }
 
@@ -82,7 +76,7 @@ public class OCRServiceTPlatform implements OCRService {
     } else {
       PIX image = lept.pixRead(savedFilePath.toString());
       String scannedPage =
-          extractTextFromPix(image, savedFilePath.getFileName().toString(), lang, highQuality);
+          extractTextFromPix(image, savedFilePath.getFileName().toString(), ocrConfig);
       extractedFile.getPages().add(scannedPage);
 
       // free resources
@@ -92,17 +86,16 @@ public class OCRServiceTPlatform implements OCRService {
     return extractedFile;
   }
 
-  private String extractTextFromPix(
-      PIX image, String newFileName, String lang, Boolean highQuality) {
+  private String extractTextFromPix(PIX image, String newFileName, OcrConfig ocrConfig) {
 
-    if (!addTesseractLanguage(lang)) {
+    if (!addTesseractLanguage(ocrConfig.getLang())) {
       // TODO return error - unsupported language!
       return null;
     }
 
     // this is not going to work out with multiple threads ...
     // TODO recreate new instance for every file?
-    TessBaseAPI tessBaseAPI = byLanguageTPlatform.get(lang);
+    TessBaseAPI tessBaseAPI = byLanguageTPlatform.get(ocrConfig.getLang());
     //    TessBaseAPI tessBaseAPI = CreateNewInstanceOfTessBaseAPI(lang);
     //    Don't forget on every new instance to delete it!!!! TODO
 

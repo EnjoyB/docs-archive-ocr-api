@@ -1,10 +1,18 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
+import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
+import com.sulikdan.ocrApi.entities.OcrConfig;
+import com.sulikdan.ocrApi.services.async.DocumentStorageService;
+import com.sulikdan.ocrApi.services.async.PDFJobWorker;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -13,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.sulikdan.ocrApi.services.DocumentServiceImpl.generateNamePrefix;
 
 /**
  * Created by Daniel Šulik on 12-Jul-20
@@ -23,24 +33,29 @@ import java.util.stream.Collectors;
  * <p>Though pdfbox supports to read a pdf file as text(if the file supports it), but in this case,
  * it's converted to PNG file and then send to OCR
  */
+@Slf4j
 @Service
 public class PDFServiceImpl implements PDFService {
 
+  private final TaskExecutor taskExecutor;
+
+  private final DocumentStorageService documentStorageService;
   private final FileStorageService fileStorageService;
   private final OCRService ocrService;
 
-  public PDFServiceImpl(FileStorageService fileStorageService, OCRService ocrService) {
+  public PDFServiceImpl(
+      TaskExecutor taskExecutor,
+      DocumentStorageService documentStorageService,
+      FileStorageService fileStorageService,
+      OCRService ocrService) {
+    this.taskExecutor = taskExecutor;
+    this.documentStorageService = documentStorageService;
     this.fileStorageService = fileStorageService;
     this.ocrService = ocrService;
   }
 
   @Override
-  public Document extractTextFromPDF(
-      Path pdfFilePath,
-      String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality) {
+  public Document extractTextFromPDF(Path pdfFilePath, String origFileName, OcrConfig ocrConfig) {
 
     try {
       PDDocument pdfDoc = PDDocument.load(pdfFilePath.toFile());
@@ -58,9 +73,7 @@ public class PDFServiceImpl implements PDFService {
                 bufferedImage, pageNum, pdfFilePath.getFileName().toString());
 
         // OCR scanning
-        pdfPages.add(
-            ocrService.extractTextFromFile(
-                tempFilePath, origFileName, lang, multipageTiff, highQuality));
+        pdfPages.add(ocrService.extractTextFromFile(tempFilePath, origFileName, ocrConfig));
 
         // Delete temp file
         fileStorageService.deleteFile(tempFilePath);
@@ -116,5 +129,37 @@ public class PDFServiceImpl implements PDFService {
     }
 
     return convertedPDFPaths;
+  }
+
+  @Override
+  public List<DocumentAsyncStatus> processPDFs(MultipartFile[] files, OcrConfig ocrConfig) {
+    List<DocumentAsyncStatus> docsStatutes = new ArrayList<>();
+
+    for (MultipartFile file : files) {
+      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
+
+      String savedFileName = savedFilePath.getFileName().toString();
+
+      log.info("Async sending work to do!");
+      DocumentAsyncStatus returnAsyncStatus =
+          DocumentAsyncStatus.generateDocumentAsyncStatus(
+              documentStorageService, DocumentProcessStatus.PROCESSING, savedFileName);
+
+      taskExecutor.execute(
+          new PDFJobWorker(
+              fileStorageService,
+              ocrService,
+              documentStorageService,
+              this,
+              savedFilePath,
+              file.getOriginalFilename(),
+              ocrConfig));
+
+      docsStatutes.add(returnAsyncStatus);
+
+      documentStorageService.getDocumentAsyncMap().put(savedFileName, returnAsyncStatus);
+    }
+
+    return docsStatutes;
   }
 }

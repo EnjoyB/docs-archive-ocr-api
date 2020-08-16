@@ -1,6 +1,7 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.OcrConfig;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.leptonica.PIX;
 import org.bytedeco.tesseract.TessBaseAPI;
@@ -70,7 +71,7 @@ public class OCRServiceTPlatform2 implements OCRService {
 
   @Override
   public Document extractTextFromFile(
-          Path savedFilePath, String newFileName, String lang, Boolean multipageTiff, Boolean highQuality) {
+          Path savedFilePath, String newFileName, OcrConfig ocrConfig) {
     return null;
   }
 

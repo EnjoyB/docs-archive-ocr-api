@@ -1,6 +1,9 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
+import com.sulikdan.ocrApi.entities.OcrConfig;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -13,12 +16,12 @@ import java.util.List;
 public interface PDFService {
 
   Document extractTextFromPDF(
-      Path pdfFilePath,
-      String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality);
+          Path pdfFilePath,
+          String origFileName,
+          OcrConfig ocrConfig);
 
   List<Path> convertPDFToPNG(Path pdfFilePath,
                              String origFileName);
+
+  List<DocumentAsyncStatus> processPDFs(MultipartFile[] files, OcrConfig ocrConfig);
 }

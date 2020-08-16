@@ -1,6 +1,7 @@
 package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
+import com.sulikdan.ocrApi.entities.OcrConfig;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
@@ -22,11 +23,9 @@ public interface OCRService {
   Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality);
 
   Document extractTextFromFile(
-      Path savedFilePath,
-      String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality);
+          Path savedFilePath,
+          String origFileName,
+          OcrConfig ocrConfig);
 
   boolean addTesseractLanguage(String language);
   //  Document extractTextFromMultiPageTiff(Path savedPath, String lang, Boolean highQuality);

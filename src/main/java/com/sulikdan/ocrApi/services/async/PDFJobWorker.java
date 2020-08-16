@@ -3,6 +3,7 @@ package com.sulikdan.ocrApi.services.async;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
+import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.PDFService;
@@ -30,9 +31,7 @@ public class PDFJobWorker implements Runnable {
   private final Path savedFilePath;
   private final String origFileName;
 
-  private final String lang;
-  private final Boolean multipageTiff;
-  private final Boolean highQuality;
+  private final OcrConfig ocrConfig;
 
   public PDFJobWorker(
       FileStorageService fileStorageService,
@@ -41,36 +40,31 @@ public class PDFJobWorker implements Runnable {
       PDFService pdfService,
       Path savedFilePath,
       String origFileName,
-      String lang,
-      Boolean multipageTiff,
-      Boolean highQuality) {
+      OcrConfig ocrConfig) {
     this.fileStorageService = fileStorageService;
     this.ocrService = ocrService;
     this.documentStorageService = documentStorageService;
     this.pdfService = pdfService;
     this.savedFilePath = savedFilePath;
     this.origFileName = origFileName;
-    this.lang = lang;
-    this.multipageTiff = multipageTiff;
-    this.highQuality = highQuality;
+    this.ocrConfig = ocrConfig;
   }
 
   @Override
   public void run() {
     String fileNameOnServer = savedFilePath.getFileName().toString();
 
-    List<Path> tmpPaths = pdfService.convertPDFToPNG(savedFilePath, origFileName);
+    List<Path> tmpPagesPaths = pdfService.convertPDFToPNG(savedFilePath, origFileName);
 
     List<Document> pdfPages = new ArrayList<>();
-    for (Path path : tmpPaths) {
+    for (Path pagePath : tmpPagesPaths) {
 
       // OCR scanning
-      pdfPages.add(
-          ocrService.extractTextFromFile(path, origFileName, lang, multipageTiff, highQuality));
+      pdfPages.add(ocrService.extractTextFromFile(pagePath, origFileName, ocrConfig));
     }
 
     // Delete temp files
-    tmpPaths.forEach(fileStorageService::deleteFile);
+    tmpPagesPaths.forEach(fileStorageService::deleteFile);
 
     // Merging One-page documents to one big multi-page document
     List<String> pages =
