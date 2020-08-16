@@ -31,9 +31,9 @@ public class DocumentStorageServiceImpl implements DocumentStorageService {
     log.debug("Created HashMaps!");
 
 
-    this.getDocumentUri = "http://localhost:8080/ocr/async/document/";
+    this.getDocumentUri = "http://localhost:8080/ocr/document/";
     // TODO fix mapping + localhost!!!
-    this.getDocumentAsyncUri ="http://localhost:8080/ocr/async/documentStatus/";
+    this.getDocumentAsyncUri ="http://localhost:8080/ocr/documentStatus/";
   }
 
   @Override

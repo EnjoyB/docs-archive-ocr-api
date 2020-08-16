@@ -17,6 +17,12 @@ import java.nio.file.Path;
 @Builder
 public class DocumentAsyncStatus {
 
+  private DocumentProcessStatus documentProcessStatus;
+  private String currentStatusLink;
+  private String resultLink;
+
+
+
   public DocumentAsyncStatus() {}
 
   public DocumentAsyncStatus(DocumentProcessStatus documentProcessStatus, String currentStatusLink, String resultLink) {
@@ -25,9 +31,8 @@ public class DocumentAsyncStatus {
     this.resultLink            = resultLink;
   }
 
-  private DocumentProcessStatus documentProcessStatus;
-  private String currentStatusLink;
-  private String resultLink;
+
+
 
   /**
    * A method to generate DocumentAsyncStatus consisting of provided params.

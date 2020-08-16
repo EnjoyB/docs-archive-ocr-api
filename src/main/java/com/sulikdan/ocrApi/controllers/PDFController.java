@@ -27,7 +27,7 @@ import java.util.List;
  * <p>Class PDFController is used for .....
  */
 @RestController
-@RequestMapping("ocr/async/pdf")
+@RequestMapping("ocr/pdf")
 public class PDFController extends SharedControllerLogic {
 
   private TaskExecutor taskExecutor;

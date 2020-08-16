@@ -90,7 +90,7 @@ public class PDFJobWorker implements Runnable {
         documentStorageService.getDocumentAsyncMap().get(fileNameOnServer);
 
     // Setting new Status
-    documentAsyncStatus.setDocumentProcessStatus(DocumentProcessStatus.COMPLETED);
+    documentAsyncStatus.setDocumentProcessStatus(DocumentProcessStatus.SCANNED);
 
     // Updating result to be available to requester
     documentStorageService.getDocumentMap().put(fileNameOnServer, resultDoc);
