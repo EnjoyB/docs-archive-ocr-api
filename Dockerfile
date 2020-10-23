@@ -1,5 +1,32 @@
+#
+# Build stage
+#
+FROM maven:3.6.3-openjdk-8 AS build
+
+#copy pom
+#COPY pom.xml .
+COPY src /home/src/app/src
+COPY pom.xml /home/src/app
+
+
+#resolve maven dependencies
+#RUN mvn clean package -Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip && rm -r target/
+RUN mvn -f /home/src/app/pom.xml clean package
+#RUN mvn clean package
+
+#copy source
+#COPY src ./src
+
+# build the app (no dependency download here)
+#RUN mvn clean package  -Dmaven.test.skip
+
+
+#
+# Package stage
+#
 #FROM openjdk:8-jre-alpine
 FROM openjdk:8-jdk
+#FROM gcr.io/distroless/java
 
 RUN apt update
 
@@ -17,21 +44,23 @@ ADD https://github.com/tesseract-ocr/tessdata/raw/master/slk.traineddata /usr/sh
 #RUN tesseract -v
 
 # Set the location of the jar
-ENV MICROSERVICE_HOME /usr/microservices
+#ENV MICROSERVICE_HOME /usr/microservices
 
 # Set the name of the jar
 #ENV APP_FILE ocrApi-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 ENV APP_FILE ocrApi-0.0.1-SNAPSHOT.jar
 
 # Open the port
-EXPOSE 8080
+EXPOSE 8888
 
 # Copy our JAR
-COPY target/$APP_FILE /app.jar
+#COPY target/$APP_FILE /app.jar
+COPY --from=build /home/src/app/target/ocrApi-0.0.1-SNAPSHOT.jar /home/app/ocrApi-0.0.1-SNAPSHOT.jar
 
 # Launch the Spring Boot application
 #ENV APP_OPTS=""
-ENV JAVA_OPTS=""
+#ENV JAVA_OPTS=""
 
 #ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar " ]
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+#ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "/home/app/ocrApi-0.0.1-SNAPSHOT.jar"]
