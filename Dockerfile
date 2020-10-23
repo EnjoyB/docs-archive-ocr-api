@@ -5,13 +5,13 @@ FROM maven:3.6.3-openjdk-8 AS build
 
 #copy pom
 #COPY pom.xml .
-COPY src /home/src/app/src
-COPY pom.xml /home/src/app
+COPY src /usr/src/app/src
+COPY pom.xml /usr/src/app
 
 
 #resolve maven dependencies
 #RUN mvn clean package -Dmaven.test.skip -Dmaven.main.skip -Dspring-boot.repackage.skip && rm -r target/
-RUN mvn -f /home/src/app/pom.xml clean package
+RUN mvn -f /usr/src/app/pom.xml clean package
 #RUN mvn clean package
 
 #copy source
@@ -55,7 +55,7 @@ EXPOSE 8888
 
 # Copy our JAR
 #COPY target/$APP_FILE /app.jar
-COPY --from=build /home/src/app/target/ocrApi-0.0.1-SNAPSHOT.jar /home/app/ocrApi-0.0.1-SNAPSHOT.jar
+COPY --from=build /usr/src/app/target/ocrApi-0.0.1-SNAPSHOT.jar /usr/app/ocrApi-0.0.1-SNAPSHOT.jar
 
 # Launch the Spring Boot application
 #ENV APP_OPTS=""
@@ -63,4 +63,4 @@ COPY --from=build /home/src/app/target/ocrApi-0.0.1-SNAPSHOT.jar /home/app/ocrAp
 
 #ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar " ]
 #ENTRYPOINT ["java", "-jar", "/app.jar"]
-ENTRYPOINT ["java", "-jar", "/home/app/ocrApi-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar", "/usr/app/ocrApi-0.0.1-SNAPSHOT.jar"]
