@@ -25,6 +25,7 @@ import java.util.List;
  * <p>Class PDFController is used for .....
  */
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping("ocr/pdf")
 public class PDFController extends SharedControllerLogic {

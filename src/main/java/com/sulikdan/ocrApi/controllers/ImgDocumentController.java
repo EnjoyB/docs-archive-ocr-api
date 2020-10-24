@@ -24,6 +24,7 @@ import java.util.List;
  * <p>Class DocumentAsyncController is used for .....
  */
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping("ocr/document")
 public class ImgDocumentController extends SharedControllerLogic {
