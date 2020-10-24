@@ -9,6 +9,7 @@ import org.bytedeco.leptonica.PIX;
 import org.bytedeco.leptonica.PIXA;
 import org.bytedeco.leptonica.global.lept;
 import org.bytedeco.tesseract.TessBaseAPI;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +30,9 @@ public class OCRServiceTPlatform implements OCRService {
 
   private final FileStorageService fileStorageService;
   private HashMap<String, TessBaseAPI> byLanguageTPlatform;
+
+  @Value("${tesseract.path}" )
+  private String pathToTessdata;
 
   public OCRServiceTPlatform(FileStorageService fileStorageService) {
     this.fileStorageService = fileStorageService;
@@ -121,8 +125,8 @@ public class OCRServiceTPlatform implements OCRService {
     if (byLanguageTPlatform.containsKey(language)) return true;
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
-
-    if (newTessBaseAPI.Init(OcrApiApplication.pathToTessdata, language) != 0) {
+    log.warn("Current tessdata path: " + pathToTessdata);
+    if (newTessBaseAPI.Init(pathToTessdata, language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       return false;
     }
@@ -140,7 +144,8 @@ public class OCRServiceTPlatform implements OCRService {
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
 
-    if (newTessBaseAPI.Init(OcrApiApplication.pathToTessdata, language) != 0) {
+    log.warn("Current tessdata path: " + pathToTessdata);
+    if (newTessBaseAPI.Init(pathToTessdata, language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       throw new RuntimeException(
           "Couldn't init another TessBaseAPI instance with language: " + language);
