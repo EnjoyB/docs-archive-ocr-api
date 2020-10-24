@@ -12,5 +12,9 @@ springdoc:
     path: /swagger-ui-custom.html
     operations-sorter: method
 
+
+server:
+  port: 8086
+
 #spring.profiles=backUp
 #sspring.profiles.active=backUp
