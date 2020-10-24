@@ -18,7 +18,8 @@ server:
   address: localhost
 
 tesseract:
-  path: /usr/share/tessdata/
+  path: "/usr/share/tessdata/"
 
 #spring.profiles=backUp
 #sspring.profiles.active=backUp
+#  -tessdata src\main\resources\tessdata

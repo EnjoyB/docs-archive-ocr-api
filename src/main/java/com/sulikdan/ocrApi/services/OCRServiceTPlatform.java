@@ -1,6 +1,6 @@
 package com.sulikdan.ocrApi.services;
 
-import com.sulikdan.ocrApi.OcrApiApplication;
+import com.sulikdan.ocrApi.configurations.properties.CustomTessProperties;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,6 @@ import org.bytedeco.leptonica.PIX;
 import org.bytedeco.leptonica.PIXA;
 import org.bytedeco.leptonica.global.lept;
 import org.bytedeco.tesseract.TessBaseAPI;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,11 +30,12 @@ public class OCRServiceTPlatform implements OCRService {
   private final FileStorageService fileStorageService;
   private HashMap<String, TessBaseAPI> byLanguageTPlatform;
 
-  @Value("${tesseract.path}" )
-  private String pathToTessdata;
+  private final CustomTessProperties customTessProperties;
 
-  public OCRServiceTPlatform(FileStorageService fileStorageService) {
+  public OCRServiceTPlatform(
+      FileStorageService fileStorageService, CustomTessProperties customTessProperties) {
     this.fileStorageService = fileStorageService;
+    this.customTessProperties = customTessProperties;
     this.byLanguageTPlatform = new HashMap<>();
     addTesseractLanguage("eng");
   }
@@ -125,8 +125,9 @@ public class OCRServiceTPlatform implements OCRService {
     if (byLanguageTPlatform.containsKey(language)) return true;
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
-    log.warn("Current tessdata path: " + pathToTessdata);
-    if (newTessBaseAPI.Init(pathToTessdata, language) != 0) {
+    log.info("Custom tess prop: " + customTessProperties.getPath());
+
+    if (newTessBaseAPI.Init(customTessProperties.getPath(), language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       return false;
     }
@@ -144,8 +145,9 @@ public class OCRServiceTPlatform implements OCRService {
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
 
-    log.warn("Current tessdata path: " + pathToTessdata);
-    if (newTessBaseAPI.Init(pathToTessdata, language) != 0) {
+    log.info("Custom tess prop: " + customTessProperties.getPath());
+
+    if (newTessBaseAPI.Init(customTessProperties.getPath(), language) != 0) {
       System.err.println("Could not initialize tesseract, with language: " + language);
       throw new RuntimeException(
           "Couldn't init another TessBaseAPI instance with language: " + language);
