@@ -50,6 +50,11 @@ ADD https://github.com/tesseract-ocr/tessdata/raw/master/slk.traineddata /usr/sh
 #ENV APP_FILE ocrApi-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 ENV APP_FILE ocrApi-0.0.1-SNAPSHOT.jar
 
+# Setting arguments
+#ARG tessData
+#ENV tessData=${tessData}
+# going to use --build-arg
+
 # Open the port
 EXPOSE 8888
 

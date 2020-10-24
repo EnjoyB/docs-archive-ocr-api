@@ -1,0 +1,16 @@
+# Request file sizes
+spring:
+  servlet:
+    multipart:
+      max-file-size: 4096KB
+      max-request-size: 16384KB
+
+
+# Swagger springdoc
+springdoc:
+  swagger-ui:
+    path: /swagger-ui-custom.html
+    operations-sorter: method
+
+#spring.profiles=backUp
+#sspring.profiles.active=backUp
