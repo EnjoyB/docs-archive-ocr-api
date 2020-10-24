@@ -15,6 +15,10 @@ springdoc:
 
 server:
   port: 8086
+  address: localhost
+
+tesseract:
+  path: /usr/share/tessdata/
 
 #spring.profiles=backUp
 #sspring.profiles.active=backUp

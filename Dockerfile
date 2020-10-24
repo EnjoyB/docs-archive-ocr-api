@@ -25,16 +25,16 @@ RUN mvn -f /usr/src/app/pom.xml clean package
 # Package stage
 #
 #FROM openjdk:8-jre-alpine
-FROM openjdk:8-jdk
-#FROM gcr.io/distroless/java
+#FROM openjdk:8-jdk
+FROM gcr.io/distroless/java-debian10
 
-RUN apt update
+#RUN apt update
 
 # Install tesseract library
 #RUN apk add --no-cache tesseract-ocr
 
 # Download last language package
-RUN mkdir -p /usr/share/tessdata
+#RUN mkdir -p /usr/share/tessdata
 ADD https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata /usr/share/tessdata/eng.traineddata
 ADD https://github.com/tesseract-ocr/tessdata/raw/master/ces.traineddata /usr/share/tessdata/ces.traineddata
 ADD https://github.com/tesseract-ocr/tessdata/raw/master/slk.traineddata /usr/share/tessdata/slk.traineddata
@@ -55,8 +55,8 @@ ENV APP_FILE ocrApi-0.0.1-SNAPSHOT.jar
 #ENV tessData=${tessData}
 # going to use --build-arg
 
-# Open the port
-EXPOSE 8888
+# Open the port, inside docker network
+EXPOSE 8086
 
 # Copy our JAR
 #COPY target/$APP_FILE /app.jar
