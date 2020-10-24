@@ -14,7 +14,7 @@ springdoc:
 
 
 server:
-  port: 8086
+  port: 8080
   address: localhost
 
 tesseract:
