@@ -47,12 +47,22 @@ public class ImgDocumentController extends SharedControllerLogic {
       @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
       @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
       throws JsonProcessingException {
+    log.info("Inside uploading!");
+    List<DocumentAsyncStatus> documentAsyncStatusList = null;
+    try{
+
 
     checkSupportedLanguages(lang);
     OcrConfig ocrConfig =
         OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality).build();
-    List<DocumentAsyncStatus> documentAsyncStatusList =
+    documentAsyncStatusList =
         documentService.processDocuments(files, ocrConfig);
+    } catch (Exception e){
+      log.error("Something fucked up!\n" +  e.getMessage());
+      e.getStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                           .body(mapper.writeValueAsString("Troubles ..."));
+    }
 
     log.info("Finnishing in async controller!");
     return ResponseEntity.status(HttpStatus.OK)
