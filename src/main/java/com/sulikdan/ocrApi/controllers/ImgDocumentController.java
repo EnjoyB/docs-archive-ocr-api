@@ -39,6 +39,12 @@ public class ImgDocumentController extends SharedControllerLogic {
     this.documentService = documentService;
   }
 
+  @GetMapping(value = "/hello")
+  public ResponseEntity<String> testController(){
+    log.info("Its hello!");
+    return ResponseEntity.status(HttpStatus.OK).body("Hello!\nIts working");
+  }
+
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextAsync(

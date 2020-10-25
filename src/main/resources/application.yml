@@ -15,10 +15,10 @@ springdoc:
 
 server:
   port: 8080
-  address: localhost
+#  address: localhost
 
 tesseract:
-  path: "/usr/share/tessdata/"
+  path: "src/main/resources/tessdata"
 
 logging:
   level:
