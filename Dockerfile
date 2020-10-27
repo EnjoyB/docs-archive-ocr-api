@@ -22,7 +22,7 @@ ADD https://github.com/tesseract-ocr/tessdata/raw/master/slk.traineddata /usr/sh
 ENV APP_FILE ocrApi-0.0.1-SNAPSHOT.jar
 
 # Open the port, inside docker network
-EXPOSE 8080
+EXPOSE 8086
 
 # Copy our JAR
 #COPY target/$APP_FILE /app.jar

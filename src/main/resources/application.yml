@@ -14,8 +14,8 @@ springdoc:
 
 
 server:
-  port: 8080
-#  address: localhost
+  port: 8087
+  address: 127.0.0.1
 
 tesseract:
   path: "src/main/resources/tessdata"
