@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping("ocr/pdf")
+@RequestMapping("pdfs")
 public class PDFController extends SharedControllerLogic {
 
   private TaskExecutor taskExecutor;

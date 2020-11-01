@@ -16,7 +16,7 @@ server:
   port: 8086
   address: 127.0.0.1
   servlet:
-    context-path: /api
+    context-path: /api/ocr
 
 tesseract:
   path: "src/main/resources/tessdata"

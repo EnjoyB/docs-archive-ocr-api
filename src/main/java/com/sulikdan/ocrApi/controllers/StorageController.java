@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Class OCRController is used for .....
  */
 @RestController
-@RequestMapping("ocr/storage")
+@RequestMapping("storage")
 public class StorageController {
 
     FileStorageService fileStorageService;
