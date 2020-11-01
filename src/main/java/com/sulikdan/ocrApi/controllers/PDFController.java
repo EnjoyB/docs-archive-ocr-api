@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 11-Jul-20
  *
- * <p>Class PDFController is used for .....
+ * <p>Class PDFController is used to process PDF files and scan them with the help of a OCR.
  */
 @Slf4j
 @CrossOrigin

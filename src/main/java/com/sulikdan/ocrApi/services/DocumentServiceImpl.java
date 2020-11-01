@@ -19,7 +19,9 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 16-Aug-20
  *
- * <p>Class DocumentServiceImpl is used for .....
+ * <p>Class DocumentServiceImpl is an implementation of DocumentService.
+ *
+ * @see DocumentService
  */
 @Slf4j
 @Service

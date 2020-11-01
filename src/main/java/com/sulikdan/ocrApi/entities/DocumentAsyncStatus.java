@@ -1,37 +1,37 @@
 package com.sulikdan.ocrApi.entities;
 
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.nio.file.Path;
+
 
 /**
  * Created by Daniel Šulik on 08-Jul-20
  *
- * <p>Class DocumentStatus is used for .....
+ * <p>Class DocumentStatus is an entiny containing async. status of a document to be scanned.
  */
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DocumentAsyncStatus {
 
+  /**
+   * Represents current status of the document.
+   */
   private DocumentProcessStatus documentProcessStatus;
+
+  /**
+   * A link/url to resource containing status of document.
+   */
   private String currentStatusLink;
+
+  /**
+   * A link/url to resource containing processed/scanned document.
+   */
   private String resultLink;
-
-
-
-  public DocumentAsyncStatus() {}
-
-  public DocumentAsyncStatus(DocumentProcessStatus documentProcessStatus, String currentStatusLink, String resultLink) {
-    this.documentProcessStatus = documentProcessStatus;
-    this.currentStatusLink     = currentStatusLink;
-    this.resultLink            = resultLink;
-  }
-
-
 
 
   /**
@@ -42,11 +42,11 @@ public class DocumentAsyncStatus {
    * @return
    */
   public static DocumentAsyncStatus generateDocumentAsyncStatus(
-      DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
+          DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
     return DocumentAsyncStatus.builder()
-        .documentProcessStatus(processStatus)
-        .currentStatusLink(service.getGetDocumentUri() + newFileName + "/documentStatus")
-        .resultLink(service.getGetDocumentUri() + newFileName)
-        .build();
+            .documentProcessStatus(processStatus)
+            .currentStatusLink(service.getGetDocumentUri() + newFileName + "/documentStatus")
+            .resultLink(service.getGetDocumentUri() + newFileName)
+            .build();
   }
 }

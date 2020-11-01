@@ -5,7 +5,7 @@ import lombok.*;
 /**
  * Created by Daniel Šulik on 16-Aug-20
  * <p>
- * Class ScanConfig is used for .....
+ * Class ScanConfig is an entity containing configuration for ocr-scanning.
  */
 @Getter
 @Setter

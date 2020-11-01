@@ -8,7 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Daniel Šulik on 10-Jul-20
  * <p>
- * Class DocumentStorageService is used for .....
+ * Class DocumentStorageService is virtual storage to keep information about
+ * currently processed documents.
  */
 public interface DocumentStorageService {
 
@@ -20,12 +21,5 @@ public interface DocumentStorageService {
 
     ConcurrentHashMap<String, Document> getDocumentMap();
     ConcurrentHashMap<String, DocumentAsyncStatus> getDocumentAsyncMap();
-
-
-//    void addDocumentToDocumentMap(String fileName, Document document);
-//
-//
-//    void addDocumentAsyncToDocumentAsyncMap(String fileName, DocumentAsync documentAsync);
-
 
 }

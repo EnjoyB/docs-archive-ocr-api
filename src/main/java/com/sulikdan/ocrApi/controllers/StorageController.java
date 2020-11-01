@@ -2,6 +2,7 @@ package com.sulikdan.ocrApi.controllers;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.services.FileStorageService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,8 +17,10 @@ import java.util.stream.Collectors;
 /**
  * Created by Daniel Šulik on 02-Jul-20
  * <p>
- * Class OCRController is used for .....
+ * Class Storage controller created for debugging or information reason, to be aware how many files are available.
+ * For now it's not needed -> therefore disabled.
  */
+@ConditionalOnExpression("${storage.controller.enabled:false}")
 @RestController
 @RequestMapping("storage")
 public class StorageController {

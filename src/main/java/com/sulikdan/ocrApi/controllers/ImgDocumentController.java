@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 10-Jul-20
  *
- * <p>Class DocumentAsyncController is used for .....
+ * <p>Class ImgDocumentController is used to process jpg, png, tiff files and scan them with the help of a OCR.
  */
 @Slf4j
 @CrossOrigin
@@ -132,44 +132,4 @@ public class ImgDocumentController extends SharedControllerLogic {
     return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString(resultDocumentList));
   }
 
-  // TODO test part
-  // TODO test Part
-  //  @ResponseBody
-  @PostMapping(
-      value = "/test",
-      consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-      produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> uploadAndExtractTextAsyncTest(
-      @RequestPart("files") MultipartFile[] files,
-      @RequestParam(value = "lang", defaultValue = "eng") String lang,
-      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
-      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
-      throws JsonProcessingException {
-    // TODO this is intended only for testign
-
-    System.out.println("Went through");
-    System.out.println(
-        "AMount files: "
-            + files.length
-            + " - "
-            + files[0].getName()
-            + " - "
-            + files[0].getContentType()
-            + " - "
-            + files[0].getOriginalFilename());
-    System.out.println("lang: " + lang);
-    System.out.println("multiPageFile: " + multiPageFile);
-    System.out.println("highQuality: " + highQuality);
-
-    DocumentAsyncStatus asyncStatus =
-        DocumentAsyncStatus.builder()
-            .documentProcessStatus(DocumentProcessStatus.PROCESSING)
-            .currentStatusLink("yolooo")
-            .resultLink("Topkek/.com")
-            .build();
-
-    return ResponseEntity.status(HttpStatus.OK)
-        //        .body(mapper.writer().writeValueAsString(asyncStatus));
-        .body(mapper.writeValueAsString(asyncStatus));
-  }
 }

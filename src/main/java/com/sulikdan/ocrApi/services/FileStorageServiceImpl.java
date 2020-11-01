@@ -22,7 +22,8 @@ import java.util.stream.Stream;
 /**
  * Created by Daniel Šulik on 02-Jul-20
  *
- * <p>Class FileStorageServiceImpl is used for .....
+ * <p>Class FileStorageServiceImpl is an implementation of FileStorageService.
+ * @see FileStorageService
  */
 @Slf4j
 @Service
@@ -65,24 +66,6 @@ public class FileStorageServiceImpl implements FileStorageService {
   }
 
   @Override
-  public Path saveFile(MultipartFile file, String filePrefixName, String subFolderName) {
-    Path extendedBasePath =
-        Paths.get(FileStorageServiceImpl.BASE_PATH.toString() + "/" + subFolderName);
-    try {
-      Files.copy(
-          file.getInputStream(),
-          extendedBasePath.resolve(
-              filePrefixName + "_" + Objects.requireNonNull(file.getOriginalFilename())));
-      return extendedBasePath.resolve(
-          filePrefixName + "_" + Objects.requireNonNull(file.getOriginalFilename()));
-    } catch (Exception e) {
-      throw new RuntimeException(
-          MessageFormat.format(
-              "Wasn't able to store the file.\nReceived error: {}", e.getMessage()));
-    }
-  }
-
-  @Override
   public Path saveTmpFile(BufferedImage bufferedImage, int pageNum, String filePrefixName) {
 
     try {
@@ -105,11 +88,6 @@ public class FileStorageServiceImpl implements FileStorageService {
       System.err.println("Problem with deleting file: " + e.getMessage());
       e.printStackTrace();
     }
-  }
-
-  @Override
-  public boolean deleteTmpFile(Path file) {
-    return file.toFile().delete();
   }
 
   @Override

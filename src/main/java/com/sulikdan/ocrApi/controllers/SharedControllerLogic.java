@@ -1,13 +1,13 @@
 package com.sulikdan.ocrApi.controllers;
 
-import com.sulikdan.ocrApi.errors.UnsupportedLanguage;
+import com.sulikdan.ocrApi.errors.UnsupportedLanguageException;
 
 import java.util.Date;
 
 /**
  * Created by Daniel Šulik on 11-Jul-20
  *
- * <p>Class SharedController is used for .....
+ * <p>Class SharedController is class containing shared logic for controllers.
  */
 public class SharedControllerLogic {
 
@@ -36,7 +36,7 @@ public class SharedControllerLogic {
       case "svk":
         return;
       default:
-        throw new UnsupportedLanguage(language);
+        throw new UnsupportedLanguageException(language);
     }
   }
 }

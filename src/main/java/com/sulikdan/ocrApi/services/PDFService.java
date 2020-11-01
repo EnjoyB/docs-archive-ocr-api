@@ -11,7 +11,11 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 11-Jul-20
  *
- * <p>Class PDFService is used for .....
+ * <p>Class PDFService is used for work with PDF files. Reads PDF file via pdfbox then saves it
+ * as png file. In case of multiple-page pdf it will be saved as multiple png files.
+ *
+ * <p>Though pdfbox supports to read a pdf file as text(if the file supports it), but in this case,
+ * it's converted to PNG file and then send to OCR
  */
 public interface PDFService {
 
@@ -20,8 +24,20 @@ public interface PDFService {
           String origFileName,
           OcrConfig ocrConfig);
 
+  /**
+   *
+   * @param pdfFilePath
+   * @param origFileName
+   * @return
+   */
   List<Path> convertPDFToPNG(Path pdfFilePath,
                              String origFileName);
 
+  /**
+   *
+   * @param files
+   * @param ocrConfig
+   * @return
+   */
   List<DocumentAsyncStatus> processPDFs(MultipartFile[] files, OcrConfig ocrConfig);
 }

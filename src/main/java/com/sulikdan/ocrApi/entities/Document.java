@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 02-Jul-20
  *
- * <p>Class Document is used for .....
+ * <p>Class Document is representation of document entity.
  */
 @Getter
 @Setter

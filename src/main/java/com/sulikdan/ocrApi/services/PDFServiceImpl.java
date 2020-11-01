@@ -27,11 +27,8 @@ import static com.sulikdan.ocrApi.services.DocumentServiceImpl.generateNamePrefi
 /**
  * Created by Daniel Šulik on 12-Jul-20
  *
- * <p>Class PDFServiceImpl is used for work with PDF files. Reads PDF file via pdfbox then saves it
- * as png file. In case of multiple-page pdf it will be saved as multiple png files.
- *
- * <p>Though pdfbox supports to read a pdf file as text(if the file supports it), but in this case,
- * it's converted to PNG file and then send to OCR
+ * <p>Class PDFServiceImpl is an implementation of PDFService.
+ * @see com.sulikdan.ocrApi.services.PDFService
  */
 @Slf4j
 @Service

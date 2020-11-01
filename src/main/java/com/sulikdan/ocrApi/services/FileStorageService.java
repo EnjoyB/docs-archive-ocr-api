@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 /**
  * Created by Daniel Šulik on 02-Jul-20
  *
- * <p>Class FileStorageService is used for .....
+ * <p>Class FileStorageService is used for work with received files - saving, reading, deleting.
  */
 public interface FileStorageService {
 
@@ -18,13 +18,9 @@ public interface FileStorageService {
 
   public Path saveFile(MultipartFile file, String filePrefixName);
 
-  public Path saveFile(MultipartFile file, String filePrefixName, String subFolderName);
-
   public Path saveTmpFile(BufferedImage bufferedImage, int pageNum, String filePrefixName);
 
   public void deleteFile(Path file);
-
-  public boolean deleteTmpFile(Path file);
 
   public Resource loadFile(String filename);
 

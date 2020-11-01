@@ -20,10 +20,10 @@ import java.util.HashMap;
 /**
  * Created by Daniel Šulik on 03-Jul-20
  *
- * <p>Class OCRServiceImpl is used for .....
+ * <p>Class OCRServiceImpl is an implementation of OCRService.
+ * @see com.sulikdan.ocrApi.services.OCRService
  */
 @Slf4j
-@Profile("default")
 @Service
 public class OCRServiceTPlatform implements OCRService {
 
@@ -38,19 +38,6 @@ public class OCRServiceTPlatform implements OCRService {
     this.customTessProperties = customTessProperties;
     this.byLanguageTPlatform = new HashMap<>();
     addTesseractLanguage("eng");
-  }
-
-  @Override
-  public Document saveAndExtractText(MultipartFile file, String lang, Boolean highQuality) {
-    if (!addTesseractLanguage(lang)) {
-      // TODO return error - unsupported language!
-      return null;
-    }
-
-    //    String savedPath = fileStorageService.saveFile(file.to);
-    //
-    //    return extractTextFromFile(savedPath, lang, highQuality);
-    return null;
   }
 
   @Override
