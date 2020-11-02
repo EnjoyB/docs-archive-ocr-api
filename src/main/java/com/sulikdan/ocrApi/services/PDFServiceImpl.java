@@ -6,6 +6,8 @@ import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
 import com.sulikdan.ocrApi.services.async.PDFJobWorker;
+import com.sulikdan.ocrApi.services.wrappers.PDDocumentWrapper;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
@@ -28,9 +30,11 @@ import static com.sulikdan.ocrApi.services.DocumentServiceImpl.generateNamePrefi
  * Created by Daniel Šulik on 12-Jul-20
  *
  * <p>Class PDFServiceImpl is an implementation of PDFService.
+ *
  * @see com.sulikdan.ocrApi.services.PDFService
  */
 @Slf4j
+@AllArgsConstructor
 @Service
 public class PDFServiceImpl implements PDFService {
 
@@ -40,22 +44,14 @@ public class PDFServiceImpl implements PDFService {
   private final FileStorageService fileStorageService;
   private final OCRService ocrService;
 
-  public PDFServiceImpl(
-      TaskExecutor taskExecutor,
-      DocumentStorageService documentStorageService,
-      FileStorageService fileStorageService,
-      OCRService ocrService) {
-    this.taskExecutor = taskExecutor;
-    this.documentStorageService = documentStorageService;
-    this.fileStorageService = fileStorageService;
-    this.ocrService = ocrService;
-  }
+  private final PDDocumentWrapper pdDocumentWrapper;
+
 
   @Override
   public Document extractTextFromPDF(Path pdfFilePath, String origFileName, OcrConfig ocrConfig) {
 
     try {
-      PDDocument pdfDoc = PDDocument.load(pdfFilePath.toFile());
+      PDDocument pdfDoc = pdDocumentWrapper.loadPdfFile(pdfFilePath.toFile());
       PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
 
       StringBuilder out = new StringBuilder();
@@ -82,9 +78,10 @@ public class PDFServiceImpl implements PDFService {
               .map(Document::getPages)
               .flatMap(Collection::stream)
               .collect(Collectors.toList());
+
       Document finalProcessedDoc =
           new Document(
-              pdfFilePath.getFileName().toString(), origFileName, pdfPages.get(0).getUrl(), pages);
+              pdfFilePath.getFileName().toString(), origFileName, pdfPages.size() > 0 ? pdfPages.get(0).getUrl() : "Failed at extraction...very likely", pages);
 
       // Deleting saved pdfFile
       fileStorageService.deleteFile(pdfFilePath);
@@ -104,7 +101,7 @@ public class PDFServiceImpl implements PDFService {
     List<Path> convertedPDFPaths = new ArrayList<>();
 
     try {
-      PDDocument pdfDoc = PDDocument.load(pdfFilePath.toFile());
+      PDDocument pdfDoc = pdDocumentWrapper.loadPdfFile(pdfFilePath.toFile());
       PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
 
       for (int pageNum = 0; pageNum < pdfDoc.getNumberOfPages(); pageNum++) {
