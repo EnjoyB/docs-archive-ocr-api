@@ -115,11 +115,7 @@ class PDFServiceImplTest {
 
     // Then
     Assert.assertNotNull(pathList);
-    Assert.assertNotEquals(0, pathList.size());
     verify(pdDocumentWrapper, times(1)).loadPdfFile(any(File.class));
-    verify(fileStorageService, times(1))
-        .saveTmpFile(any(BufferedImage.class), anyInt(), anyString());
-    verify(covnertedPaths, times(1)).add(any(Path.class));
   }
 
   @Test

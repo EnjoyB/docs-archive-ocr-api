@@ -69,10 +69,11 @@ public class PDFController extends SharedControllerLogic {
 
     log.info("Finnishing in PDF async controller!");
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsyncStatusList));
+        .body(mapper.writeValueAsString(documentAsyncStatusList));
   }
 
   @DeleteMapping("/{fileName}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDocument(@PathVariable String fileName) {
     // TODO reuse ImgDocumentController?
     if (documentStorageService.getDocumentMap().containsKey(fileName)) {
@@ -82,27 +83,27 @@ public class PDFController extends SharedControllerLogic {
   }
 
   @GetMapping("/{fileName}")
-  public String getDocument(@PathVariable String fileName) throws JsonProcessingException {
+  public ResponseEntity<?> getDocument(@PathVariable String fileName) throws JsonProcessingException {
     // TODO reuse ImgDocumentController?
     Document document = documentStorageService.getDocumentMap().get(fileName);
 
     if (document != null) {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(document);
+      return ResponseEntity.ok(mapper.writeValueAsString(document));
     } else {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString("null");
+      return ResponseEntity.notFound().build();
     }
   }
 
   @GetMapping("/{fileName}/documentStatus")
-  public String getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
+  public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
     // TODO reuse ImgDocumentController?
     DocumentAsyncStatus documentAsyncStatus =
         documentStorageService.getDocumentAsyncMap().get(fileName);
 
     if (documentAsyncStatus != null) {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(documentAsyncStatus);
+      return ResponseEntity.ok(mapper.writeValueAsString(documentAsyncStatus));
     } else {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString("null");
+      return ResponseEntity.notFound().build();
     }
   }
 }

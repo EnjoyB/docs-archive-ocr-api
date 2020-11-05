@@ -18,13 +18,14 @@
     <properties>
         <java.version>1.8</java.version>
         <spring.versions>2.3.1.RELEASE</spring.versions>
+        <powermock.version>2.0.2</powermock.version>
     </properties>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter</artifactId>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-starter</artifactId>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,12 +40,14 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.12</version>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -56,6 +59,19 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.4.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13-rc-2</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -77,19 +93,6 @@
             <version>2.0.4</version>
         </dependency>
 
-        <!--		Tess4j!-->
-        <!--		<dependency>-->
-        <!--			<groupId>net.sourceforge.tess4j</groupId>-->
-        <!--			<artifactId>tess4j</artifactId>-->
-        <!--			<version>4.3.0</version>-->
-        <!--		</dependency>-->
-
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.4.3</version>
-        </dependency>
-
         <!--    Custom properties stuff    -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -97,34 +100,31 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.2.4.Final</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.versions}</version>
-<!--                <configuration>-->
-<!--&lt;!&ndash;                    <fork>true</fork>&ndash;&gt;-->
-<!--                    <mainClass>${start-class}</mainClass>-->
-<!--                </configuration>-->
                 <executions>
                     <execution>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
-<!--                        <configuration>-->
-<!--                            <classifier>spring-boot</classifier>-->
-<!--                            <mainClass>-->
-<!--                                com.sulikdan.ocrApi.OcrApiApplication-->
-<!--                            </mainClass>-->
-<!--                        </configuration>-->
                     </execution>
                 </executions>
             </plugin>
 
-            <!--https://www.baeldung.com/spring-rest-openapi-documentation -->
             <plugin>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-maven-plugin</artifactId>
@@ -138,118 +138,13 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <apiDocsUrl>http://localhost:8086/v3/api-docs</apiDocsUrl>
                     <outputFileName>openapi.json</outputFileName>
                     <outputDir>${project.build.directory}</outputDir>
                 </configuration>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <version>3.3.0</version>-->
-<!--                <configuration>-->
-<!--                    <archive>-->
-<!--                        <manifest>-->
-<!--                            <addClassPath>true</addClassPath>-->
-<!--                            <mainClass>com.sulikdan.ocrApi.OcrApiApplication</mainClass>-->
-<!--                        </manifest>-->
-<!--                    </archive>-->
-<!--                    <descriptorRefs>-->
-<!--                        <descriptorRef>jar-with-dependencies</descriptorRef>-->
-<!--                    </descriptorRefs>-->
-<!--                </configuration>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>assemble-all</id>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-
-<!--            <plugin>-->
-<!--            <groupId>org.apache.maven.plugins</groupId>-->
-<!--            <artifactId>maven-jar-plugin</artifactId>-->
-<!--            <configuration>-->
-<!--                <archive>-->
-<!--                    <manifest>-->
-<!--                        <addClasspath>true</addClasspath>-->
-<!--                        <classpathPrefix>libs/</classpathPrefix>-->
-<!--                        <mainClass>-->
-<!--                            com.sulikdan.executable.ExecutableMavenJar-->
-<!--                        </mainClass>-->
-<!--                    </manifest>-->
-<!--                </archive>-->
-<!--            </configuration>-->
-<!--        </plugin>-->
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-assembly-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>single</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <archive>-->
-<!--                                <manifest>-->
-<!--                                    <mainClass>-->
-<!--                                        com.sulikdan.executable.ExecutableMavenJar-->
-<!--                                    </mainClass>-->
-<!--                                </manifest>-->
-<!--                            </archive>-->
-<!--                            <descriptorRefs>-->
-<!--                                <descriptorRef>jar-with-dependencies</descriptorRef>-->
-<!--                            </descriptorRefs>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-shade-plugin</artifactId>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>shade</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <shadedArtifactAttached>true</shadedArtifactAttached>-->
-<!--                            <transformers>-->
-<!--                                <transformer implementation=-->
-<!--                                                     "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-<!--                                    <mainClass>com.sulikdan.executable.ExecutableMavenJar</mainClass>-->
-<!--                                </transformer>-->
-<!--                            </transformers>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-
         </plugins>
     </build>
-
-    <!--	<build>-->
-    <!--		<plugins>-->
-    <!--			<plugin>-->
-    <!--				<artifactId>maven-assembly-plugin</artifactId>-->
-    <!--				<configuration>-->
-    <!--					<archive>-->
-    <!--						<manifest>-->
-    <!--							<mainClass>fully.qualified.MainClass</mainClass>-->
-    <!--						</manifest>-->
-    <!--					</archive>-->
-    <!--					<descriptorRefs>-->
-    <!--						<descriptorRef>jar-with-dependencies</descriptorRef>-->
-    <!--					</descriptorRefs>-->
-    <!--				</configuration>-->
-    <!--			</plugin>-->
-    <!--		</plugins>-->
-    <!--	</build>-->
 
 </project>

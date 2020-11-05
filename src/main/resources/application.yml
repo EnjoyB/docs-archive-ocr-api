@@ -26,6 +26,9 @@ logging:
     org.springframework.web: debug
     org.hibernate: ERROR
 
+storage:
+  controller:
+    enabled: true
 
 #spring.profiles=backUp
 #sspring.profiles.active=backUp

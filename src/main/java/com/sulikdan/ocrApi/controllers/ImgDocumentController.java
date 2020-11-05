@@ -76,6 +76,7 @@ public class ImgDocumentController extends SharedControllerLogic {
   }
 
   @DeleteMapping("/{fileName}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDocument(@PathVariable String fileName) {
     if (!StringUtils.isEmpty(fileName)) {
       documentService.deleteDocument(fileName);
@@ -83,7 +84,7 @@ public class ImgDocumentController extends SharedControllerLogic {
   }
 
   @GetMapping(value = "/{fileName}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public String getDocument(@PathVariable String fileName) throws JsonProcessingException {
+  public ResponseEntity<?> getDocument(@PathVariable String fileName) throws JsonProcessingException {
     Document toRet = null;
 
     if (!StringUtils.isEmpty(fileName)) {
@@ -91,23 +92,23 @@ public class ImgDocumentController extends SharedControllerLogic {
     }
 
     if (toRet != null) {
-      return mapper.writeValueAsString(toRet);
+      return ResponseEntity.ok(mapper.writeValueAsString(toRet));
     } else {
-      return mapper.writeValueAsString("null");
+      return ResponseEntity.notFound().build();
     }
   }
 
   @GetMapping(value = "/{fileName}/documentStatus", produces = MediaType.APPLICATION_JSON_VALUE)
-  public String getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
+  public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
     log.info("Called get status");
     DocumentAsyncStatus documentAsyncStatus =
         documentStorageService.getDocumentAsyncMap().get(fileName);
 
     log.info("Searched file: " + fileName);
     if (documentAsyncStatus != null) {
-      return mapper.writeValueAsString(documentAsyncStatus);
+      return ResponseEntity.ok(mapper.writeValueAsString(documentAsyncStatus));
     } else {
-      return mapper.writeValueAsString("null");
+      return ResponseEntity.notFound().build();
     }
   }
 

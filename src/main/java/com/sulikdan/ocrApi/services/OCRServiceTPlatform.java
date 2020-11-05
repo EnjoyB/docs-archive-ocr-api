@@ -21,6 +21,7 @@ import java.util.HashMap;
  * Created by Daniel Šulik on 03-Jul-20
  *
  * <p>Class OCRServiceImpl is an implementation of OCRService.
+ *
  * @see com.sulikdan.ocrApi.services.OCRService
  */
 @Slf4j
@@ -109,7 +110,9 @@ public class OCRServiceTPlatform implements OCRService {
 
   @Override
   public boolean addTesseractLanguage(String language) {
-    if (byLanguageTPlatform.containsKey(language)) return true;
+    if (byLanguageTPlatform.containsKey(language)) {
+      return true;
+    }
 
     TessBaseAPI newTessBaseAPI = new TessBaseAPI();
     log.info("Custom tess prop: " + customTessProperties.getPath());

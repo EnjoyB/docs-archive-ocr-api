@@ -2,6 +2,7 @@ package com.sulikdan.ocrApi;
 
 import com.sulikdan.ocrApi.services.FileStorageService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,13 +21,13 @@ import java.util.Arrays;
 @SpringBootApplication
 @EnableAsync
 public class OcrApiApplication implements CommandLineRunner {
-  @Resource FileStorageService fileStorageService;
+
+  @Resource
+  FileStorageService fileStorageService;
 
 //  public static String pathToTessdata = "empty";
 
   public static void main(String[] args) {
-//
-//    log.info("Chosen path to tessdata: " + pathToTessdata);
     SpringApplication.run(OcrApiApplication.class, args);
   }
 
