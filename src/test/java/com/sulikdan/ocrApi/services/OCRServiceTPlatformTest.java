@@ -4,6 +4,7 @@ import com.sulikdan.ocrApi.configurations.properties.CustomTessProperties;
 import org.bytedeco.tesseract.TessBaseAPI;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -32,6 +33,7 @@ class OCRServiceTPlatformTest {
     ocrService = new OCRServiceTPlatform(fileStorageService, customTessProperties);
   }
 
+  @Disabled
   @Test
   void addTesseractLanguage() {
     // Given
