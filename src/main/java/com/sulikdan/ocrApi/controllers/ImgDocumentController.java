@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping("documents")
+@RequestMapping("/documents")
 public class ImgDocumentController extends SharedControllerLogic {
 
   private final DocumentStorageService documentStorageService;
