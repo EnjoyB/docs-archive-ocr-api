@@ -8,6 +8,7 @@ import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.DocumentService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -39,12 +40,27 @@ public class ImgDocumentController extends SharedControllerLogic {
     this.documentService = documentService;
   }
 
+  /**
+   * A testing endpoint.
+   * @return string that it shows its working.
+   */
+  @Operation(summary = "A testing endpoint.")
   @GetMapping(value = "/hello")
   public ResponseEntity<String> testController(){
     log.info("Its hello!");
     return ResponseEntity.status(HttpStatus.OK).body("Hello!\nIts working");
   }
 
+  /**
+   * Uploads file for scanning with asynchronous ability.
+   * @param files
+   * @param lang language of file/s
+   * @param multiPageFile
+   * @param highQuality
+   * @return
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Uploads file for scanning with asynchronous ability.")
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextAsync(
@@ -75,6 +91,11 @@ public class ImgDocumentController extends SharedControllerLogic {
         .body(mapper.writeValueAsString(documentAsyncStatusList));
   }
 
+  /**
+   * Deletes uploaded file from server.
+   * @param fileName
+   */
+  @Operation(summary = "Deletes uploaded file from server.")
   @DeleteMapping("/{fileName}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDocument(@PathVariable String fileName) {
@@ -83,6 +104,13 @@ public class ImgDocumentController extends SharedControllerLogic {
     }
   }
 
+  /**
+   * Returns scanned solution for file.
+   * @param fileName
+   * @return results of scanning.
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Returns scanned solution for file.")
   @GetMapping(value = "/{fileName}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> getDocument(@PathVariable String fileName) throws JsonProcessingException {
     Document toRet = null;
@@ -98,6 +126,13 @@ public class ImgDocumentController extends SharedControllerLogic {
     }
   }
 
+  /**
+   * Returns status of a document/file being processed.
+   * @param fileName
+   * @return status of a file
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Returns status of a document/file being processed.")
   @GetMapping(value = "/{fileName}/documentStatus", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
     log.info("Called get status");
@@ -112,6 +147,16 @@ public class ImgDocumentController extends SharedControllerLogic {
     }
   }
 
+  /**
+   * Upload file for scanning and synchronously waits for result of scanning.
+   * @param files
+   * @param lang language
+   * @param multiPageFile
+   * @param highQuality
+   * @return result of scanning
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Upload file for scanning and synchronously waits for result of scanning.")
   @ResponseBody
   @PostMapping(
       value = "/sync",

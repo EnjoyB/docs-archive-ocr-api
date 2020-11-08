@@ -9,6 +9,7 @@ import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.PDFService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,16 @@ public class PDFController extends SharedControllerLogic {
     this.pdfService = pdfService;
   }
 
+  /**
+   * Used for uploading pdf file/s that will be solved.
+   * @param files
+   * @param lang language
+   * @param multiPageFile
+   * @param highQuality
+   * @return Link with statuses of file/s.
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Used for uploading pdf file/s that will be solved.")
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextAsync(
@@ -72,6 +83,11 @@ public class PDFController extends SharedControllerLogic {
         .body(mapper.writeValueAsString(documentAsyncStatusList));
   }
 
+  /**
+   * Deletes document defined by file-name.
+   * @param fileName
+   */
+  @Operation(summary = "Deletes document defined by file-name.")
   @DeleteMapping("/{fileName}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDocument(@PathVariable String fileName) {
@@ -82,6 +98,13 @@ public class PDFController extends SharedControllerLogic {
     }
   }
 
+  /**
+   * Returns scanned document.
+   * @param fileName
+   * @return
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Returns scanned document.")
   @GetMapping("/{fileName}")
   public ResponseEntity<?> getDocument(@PathVariable String fileName) throws JsonProcessingException {
     // TODO reuse ImgDocumentController?
@@ -94,6 +117,13 @@ public class PDFController extends SharedControllerLogic {
     }
   }
 
+  /**
+   * Returns a document-status of the document's file processing.
+   * @param fileName
+   * @return
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Returns a document-status of the document's file processing.")
   @GetMapping("/{fileName}/documentStatus")
   public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName) throws JsonProcessingException {
     // TODO reuse ImgDocumentController?
