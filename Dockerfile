@@ -11,7 +11,7 @@ RUN mvn -f /usr/src/app/pom.xml clean package
 #
 # Package stage
 #
-FROM gcr.io/distroless/java-debian10
+FROM openjdk:8u272-jre-windowsservercore-ltsc2016
 
 # Download last language package
 ADD https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata /usr/share/tessdata/eng.traineddata
