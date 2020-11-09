@@ -29,12 +29,14 @@ public class SharedControllerLogic {
    *
    * @param language expecting string in lower-case
    */
-  protected static void checkSupportedLanguages(String language) {
+  protected static String checkAndParseSupportedLanguages(String language) {
     switch (language) {
       case "eng":
+        return "eng";
       case "cz":
+        return "ces";
       case "svk":
-        return;
+        return "slk";
       default:
         throw new UnsupportedLanguageException(language);
     }

@@ -72,7 +72,7 @@ public class PDFController extends SharedControllerLogic {
       @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
       throws JsonProcessingException {
 
-    checkSupportedLanguages(lang);
+    lang = checkAndParseSupportedLanguages(lang);
     OcrConfig ocrConfig =
         OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality).build();
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
-import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.DocumentService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
@@ -73,8 +72,7 @@ public class ImgDocumentController extends SharedControllerLogic {
     List<DocumentAsyncStatus> documentAsyncStatusList = null;
     try{
 
-
-    checkSupportedLanguages(lang);
+    lang = checkAndParseSupportedLanguages(lang);
     OcrConfig ocrConfig =
         OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality).build();
     documentAsyncStatusList =
@@ -169,7 +167,7 @@ public class ImgDocumentController extends SharedControllerLogic {
       @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
       throws JsonProcessingException {
 
-    checkSupportedLanguages(lang);
+    lang = checkAndParseSupportedLanguages(lang);
     OcrConfig ocrConfig =
             OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality).build();
 
