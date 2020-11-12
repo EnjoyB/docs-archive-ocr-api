@@ -1,5 +1,6 @@
 package com.sulikdan.ocrApi.services.async;
 
+import com.sulikdan.ocrApi.configurations.properties.CustomServerProperties;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import lombok.extern.slf4j.Slf4j;
@@ -16,24 +17,32 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class DocumentStorageServiceImpl implements DocumentStorageService {
 
+  protected final CustomServerProperties customServerProperties;
+
   // For async communication
   protected final ConcurrentHashMap<String, Document> documentMap;
   protected final ConcurrentHashMap<String, DocumentAsyncStatus> documentAsyncMap;
 
   // Uris
+  protected String baseUriDomain = "";
   protected String getDocumentUri = "";
   protected String getDocumentAsyncUri = "";
 
-  public DocumentStorageServiceImpl() {
+  public DocumentStorageServiceImpl(CustomServerProperties customServerProperties) {
+    this.customServerProperties = customServerProperties;
+
     this.documentMap = new ConcurrentHashMap<>();
     this.documentAsyncMap = new ConcurrentHashMap<>();
     System.out.println("Created HashMaps!");
     log.debug("Created HashMaps!");
 
+    this.baseUriDomain =
+        "http://" + customServerProperties.getAddress() + ":" + customServerProperties.getPort();
+    this.getDocumentUri = baseUriDomain + customServerProperties.getContextPath() + "/documents/";
 
-    this.getDocumentUri = "http://localhost:8080/ocr/document/";
-    // TODO fix mapping + localhost!!!
-    this.getDocumentAsyncUri ="http://localhost:8080/ocr/documentStatus/";
+    this.getDocumentAsyncUri =
+        baseUriDomain + customServerProperties.getContextPath() + "/documentStatus/";
+    log.info("Set new uris to :" + getDocumentAsyncUri);
   }
 
   @Override
