@@ -30,12 +30,16 @@ public class SharedControllerLogic {
    * @param language expecting string in lower-case
    */
   protected static String checkAndParseSupportedLanguages(String language) {
+    language = language.toLowerCase();
     switch (language) {
-      case "eng":
-        return "eng";
+      case "czech":
       case "cz":
         return "ces";
+      case "eng":
+      case "english":
+        return "eng";
       case "svk":
+      case "slovak":
         return "slk";
       default:
         throw new UnsupportedLanguageException(language);
