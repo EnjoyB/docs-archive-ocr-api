@@ -1,7 +1,7 @@
 #
 # Build stage
 #
-FROM maven:3.6.3-openjdk-8 AS build
+FROM maven:3.6.3-openjdk-11 AS build
 
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
