@@ -2,30 +2,24 @@ package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
-import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.async.DocumentJobWorker;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageServiceImpl;
-import jdk.jfr.ContentType;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.Doc;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class DocumentServiceImplTest {
@@ -134,12 +128,13 @@ class DocumentServiceImplTest {
     List<DocumentAsyncStatus> resultList = documentService.processDocuments(files, ocrConfig);
 
     // Then
-    Assert.assertNotNull(resultList);
-    Assert.assertEquals(1, resultList.size());
+    Assertions.assertNotNull(resultList);
+    Assertions.assertEquals(1, resultList.size());
 
     verify(fileStorageService, times(1)).saveFile(any(MultipartFile.class), anyString());
     verify(taskExecutor, times(1)).execute(any(DocumentJobWorker.class));
-    verify(documentStorageService.getDocumentAsyncMap(),times(1)).put(anyString(),any(DocumentAsyncStatus.class));
+    verify(documentStorageService.getDocumentAsyncMap(), times(1))
+        .put(anyString(), any(DocumentAsyncStatus.class));
   }
 
   @Test
@@ -147,22 +142,22 @@ class DocumentServiceImplTest {
     // Given
     MultipartFile[] files = new MultipartFile[1];
     MultipartFile result =
-            new MockMultipartFile("name", "originalFileName", "text/plain", new byte[4]);
+        new MockMultipartFile("name", "originalFileName", "text/plain", new byte[4]);
     files[0] = result;
 
     OcrConfig ocrConfig = new OcrConfig();
 
-    when(fileStorageService.saveFile(any(MultipartFile.class), anyString())).thenReturn(Paths.get("foo.jpg"));
+    when(fileStorageService.saveFile(any(MultipartFile.class), anyString()))
+        .thenReturn(Paths.get("foo.jpg"));
     fileStorageService.deleteFile(any(Path.class));
 
     // When
-    List<Document> documentList = documentService.processDocumentsSync(files,ocrConfig);
+    List<Document> documentList = documentService.processDocumentsSync(files, ocrConfig);
 
     // Then
-    Assert.assertNotNull(documentList);
-    Assert.assertEquals(1, documentList.size());
-    verify(fileStorageService,times(1)).saveFile(any(MultipartFile.class), anyString());
-    verify(fileStorageService,times(1)).deleteFile(any(Path.class));
-
+    Assertions.assertNotNull(documentList);
+    Assertions.assertEquals(1, documentList.size());
+    verify(fileStorageService, times(1)).saveFile(any(MultipartFile.class), anyString());
+    verify(fileStorageService, times(1)).deleteFile(any(Path.class));
   }
 }
