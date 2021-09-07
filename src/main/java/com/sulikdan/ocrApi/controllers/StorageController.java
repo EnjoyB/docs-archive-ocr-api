@@ -2,23 +2,28 @@ package com.sulikdan.ocrApi.controllers;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.services.FileStorageService;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Daniel Šulik on 02-Jul-20
  * <p>
- * Class Storage controller created for debugging or information reason, to be aware how many files are available.
- * For now it's not needed -> therefore disabled.
+ * Class Storage controller created for debugging or information reason, to be aware how many files
+ * are available. For now it's not needed -> therefore disabled.
  */
 @ConditionalOnExpression("${storage.controller.enabled:false}")
 @RestController
@@ -52,7 +57,8 @@ public class StorageController {
         List<Document> documents = fileStorageService.loadAllFiles().map(path -> {
             String filename = path.getFileName().toString();
             String url = MvcUriComponentsBuilder
-                    .fromMethodName(StorageController.class, "getFile", path.getFileName().toString()).build().toString();
+                .fromMethodName(StorageController.class, "getFile", path.getFileName().toString())
+                .build().toString();
 
             return new Document(filename, url, null);
         }).collect(Collectors.toList());
@@ -65,7 +71,8 @@ public class StorageController {
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Resource file = fileStorageService.loadFile(filename);
         return ResponseEntity.ok()
-                             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+            .header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
     }
 
 }

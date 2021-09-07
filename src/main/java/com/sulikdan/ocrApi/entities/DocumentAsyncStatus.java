@@ -1,9 +1,11 @@
 package com.sulikdan.ocrApi.entities;
 
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
-import lombok.*;
-
-import java.nio.file.Path;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 /**
@@ -18,35 +20,37 @@ import java.nio.file.Path;
 @AllArgsConstructor
 public class DocumentAsyncStatus {
 
-  /**
-   * Represents current status of the document.
-   */
-  private DocumentProcessStatus documentProcessStatus;
+    /**
+     * Represents current status of the document.
+     */
+    private DocumentProcessStatus documentProcessStatus;
 
-  /**
-   * A link/url to resource containing status of document.
-   */
-  private String currentStatusLink;
+    /**
+     * A link/url to resource containing status of document.
+     */
+    private String currentStatusLink;
 
-  /**
-   * A link/url to resource containing processed/scanned document.
-   */
-  private String resultLink;
+    /**
+     * A link/url to resource containing processed/scanned document.
+     */
+    private String resultLink;
 
 
-  /**
-   * A method to generate DocumentAsyncStatus consisting of provided params.
-   * @param service for getting uri to corrent API mapping
-   * @param processStatus new processStatus of OCR to corresponding document
-   * @param newFileName string representing new file name assignet to file to avoid collision with same names
-   * @return
-   */
-  public static DocumentAsyncStatus generateDocumentAsyncStatus(
-          DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
-    return DocumentAsyncStatus.builder()
+    /**
+     * A method to generate DocumentAsyncStatus consisting of provided params.
+     *
+     * @param service       for getting uri to corrent API mapping
+     * @param processStatus new processStatus of OCR to corresponding document
+     * @param newFileName   string representing new file name assignet to file to avoid collision
+     *                      with same names
+     * @return
+     */
+    public static DocumentAsyncStatus generateDocumentAsyncStatus(
+        DocumentStorageService service, DocumentProcessStatus processStatus, String newFileName) {
+        return DocumentAsyncStatus.builder()
             .documentProcessStatus(processStatus)
             .currentStatusLink(service.getGetDocumentUri() + newFileName + "/documentStatus")
             .resultLink(service.getGetDocumentUri() + newFileName)
             .build();
-  }
+    }
 }

@@ -6,6 +6,6 @@ package com.sulikdan.ocrApi.entities;
  * <p>Class DocumentStatus class representing current status of received document.
  */
 public enum DocumentProcessStatus {
-  PROCESSING,
-  SCANNED
+    PROCESSING,
+    SCANNED
 }

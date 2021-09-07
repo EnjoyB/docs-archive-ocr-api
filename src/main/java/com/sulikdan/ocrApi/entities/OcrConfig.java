@@ -1,6 +1,10 @@
 package com.sulikdan.ocrApi.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Created by Daniel Šulik on 16-Aug-20

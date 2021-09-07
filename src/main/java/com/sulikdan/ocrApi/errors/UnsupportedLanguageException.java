@@ -10,15 +10,16 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class UnsupportedLanguageException extends RuntimeException {
-  public UnsupportedLanguageException() {
-    super();
-  }
 
-  public UnsupportedLanguageException(String message) {
-    super(message);
-  }
+    public UnsupportedLanguageException() {
+        super();
+    }
 
-  public UnsupportedLanguageException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public UnsupportedLanguageException(String message) {
+        super(message);
+    }
+
+    public UnsupportedLanguageException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

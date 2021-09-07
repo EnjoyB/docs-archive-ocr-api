@@ -2,8 +2,6 @@ package com.sulikdan.ocrApi.services;
 
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.OcrConfig;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Path;
 
 /**
@@ -14,27 +12,25 @@ import java.nio.file.Path;
  */
 public interface OCRService {
 
-  static final String PATH_TO_TESSDATA_DEV = "src/main/resources/tessdata";
-  static final String PATH_TO_TESSDATA = PATH_TO_TESSDATA_DEV;
+    static final String PATH_TO_TESSDATA_DEV = "src/main/resources/tessdata";
+    static final String PATH_TO_TESSDATA = PATH_TO_TESSDATA_DEV;
 
 
-  /**
-   *
-   * @param savedFilePath
-   * @param origFileName
-   * @param ocrConfig
-   * @return
-   */
-  Document extractTextFromFile(
-          Path savedFilePath,
-          String origFileName,
-          OcrConfig ocrConfig);
+    /**
+     * @param savedFilePath
+     * @param origFileName
+     * @param ocrConfig
+     * @return
+     */
+    Document extractTextFromFile(
+        Path savedFilePath,
+        String origFileName,
+        OcrConfig ocrConfig);
 
-  /**
-   *
-   * @param language
-   * @return
-   */
-  boolean addTesseractLanguage(String language);
+    /**
+     * @param language
+     * @return
+     */
+    boolean addTesseractLanguage(String language);
 
 }
