@@ -4,8 +4,8 @@ import {MatIcon} from "@angular/material/icon";
 import {MatButton, MatIconButton} from "@angular/material/button";
 import {RouterLink} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
-import {MessageDialogComponent} from "../body/shared/message-dialog/message-dialog.component";
-import {SpinnerDialogComponent} from "../body/shared/spinner-dialog/spinner-dialog.component";
+import {MessageDialogComponent} from "../body/shared/dialogs/message-dialog/message-dialog.component";
+import {SpinnerDialogComponent} from "../body/shared/dialogs/spinner-dialog/spinner-dialog.component";
 
 
 @Component({
