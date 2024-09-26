@@ -1,5 +1,6 @@
 package com.sulikdan.ocrApi.services;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -23,7 +24,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -32,7 +32,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-// @RunWith(PowerMockRunner.class)
 // @PrepareForTest(PDDocument.class)
 class PDFServiceImplTest {
 
@@ -88,8 +87,6 @@ class PDFServiceImplTest {
         final OcrConfig ocrConfig = new OcrConfig();
 
         //        PDDocument pdDocument1 = new PDDocument();
-        //        pdDocument.
-        //        PowerMockito.mockStatic(PDDocument.class);
         when(pdDocumentWrapper.loadPdfFile(any(File.class))).thenReturn(pdDocument);
         when(fileStorageService.saveTmpFile(any(BufferedImage.class), anyInt(), anyString()))
             .thenReturn(filePathPng);
@@ -103,7 +100,7 @@ class PDFServiceImplTest {
         Document docExtracted = pdfService.extractTextFromPDF(filePathPdf, origFileName, ocrConfig);
 
         // Then
-        Assert.assertNotNull(docExtracted);
+        assertNotNull(docExtracted);
     }
 
     @Test
@@ -124,7 +121,7 @@ class PDFServiceImplTest {
         List<Path> pathList = pdfService.convertPDFToPNG(filePathPdf, originalName);
 
         // Then
-        Assert.assertNotNull(pathList);
+        assertNotNull(pathList);
         verify(pdDocumentWrapper, times(1)).loadPdfFile(any(File.class));
     }
 
@@ -153,8 +150,8 @@ class PDFServiceImplTest {
         List<DocumentAsyncStatus> statuses = pdfService.processPDFs(files, ocrConfig);
 
         // Then
-        Assert.assertNotNull(statuses);
-        Assert.assertNotEquals(0, statuses.size());
+        assertNotNull(statuses);
+        assertNotEquals(0, statuses.size());
 
         verify(fileStorageService, times(1)).saveFile(any(MultipartFile.class), anyString());
         verify(taskExecutor, times(1)).execute(any(PDFJobWorker.class));

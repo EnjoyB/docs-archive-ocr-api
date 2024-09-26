@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ocrApi.entities.Document;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +85,7 @@ class PDFControllerTest {
                 .andReturn();
 
         // then
-        Assert.assertEquals(
+        assertEquals(
             mapper.writeValueAsString(listDoc), mvcResult.getResponse().getContentAsString());
     }
 
@@ -126,7 +126,7 @@ class PDFControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
         // then
-        Assert.assertEquals("", mvcResult.getResponse().getContentAsString());
+        assertEquals("", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -145,7 +145,7 @@ class PDFControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         // then
-        Assert.assertEquals(mapper.writeValueAsString(d),
+        assertEquals(mapper.writeValueAsString(d),
             mvcResult.getResponse().getContentAsString());
     }
 
@@ -163,7 +163,7 @@ class PDFControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
         // then
-        Assert.assertEquals("", mvcResult.getResponse().getContentAsString());
+        assertEquals("", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -183,7 +183,7 @@ class PDFControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         // then
-        Assert.assertEquals(
+        assertEquals(
             mapper.writeValueAsString(documentAsyncStatus),
             mvcResult.getResponse().getContentAsString());
     }

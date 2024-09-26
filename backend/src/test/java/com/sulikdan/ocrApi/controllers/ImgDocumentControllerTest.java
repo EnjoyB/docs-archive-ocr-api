@@ -1,5 +1,6 @@
 package com.sulikdan.ocrApi.controllers;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,7 +80,7 @@ class ImgDocumentControllerTest {
                 .andReturn();
 
         // then
-        Assert.assertEquals(
+        assertEquals(
             mapper.writeValueAsString(listDoc), mvcResult.getResponse().getContentAsString());
     }
 
@@ -108,7 +108,7 @@ class ImgDocumentControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
         // then
-        Assert.assertEquals("", mvcResult.getResponse().getContentAsString());
+        assertEquals("", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -124,7 +124,7 @@ class ImgDocumentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         // then
-        Assert.assertEquals(mapper.writeValueAsString(d),
+        assertEquals(mapper.writeValueAsString(d),
             mvcResult.getResponse().getContentAsString());
     }
 
@@ -142,7 +142,7 @@ class ImgDocumentControllerTest {
                 .andExpect(status().isNotFound())
                 .andReturn();
         // then
-        Assert.assertEquals("", mvcResult.getResponse().getContentAsString());
+        assertEquals("", mvcResult.getResponse().getContentAsString());
     }
 
     @Test
@@ -162,7 +162,7 @@ class ImgDocumentControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
         // then
-        Assert.assertEquals(
+        assertEquals(
             mapper.writeValueAsString(documentAsyncStatus),
             mvcResult.getResponse().getContentAsString());
     }
@@ -191,7 +191,8 @@ class ImgDocumentControllerTest {
                 .andReturn();
 
         // then
-        Assert.assertEquals(
+        
+        assertEquals(
             mapper.writeValueAsString(listDoc), mvcResult.getResponse().getContentAsString());
     }
 }

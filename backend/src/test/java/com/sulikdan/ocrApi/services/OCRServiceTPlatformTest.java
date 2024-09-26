@@ -1,11 +1,11 @@
 package com.sulikdan.ocrApi.services;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sulikdan.ocrApi.configurations.properties.CustomTessProperties;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class OCRServiceTPlatformTest {
         boolean retVal = ocrService.addTesseractLanguage(language);
 
         // Then
-        Assert.assertTrue(retVal);
+        assertTrue(retVal);
         verify(customTessProperties, times(2)).getPath();
     }
 
