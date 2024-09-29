@@ -14,9 +14,9 @@ RUN mvn -f /usr/src/app/pom.xml clean package
 FROM gcr.io/distroless/java-debian10
 
 # Download last language package
-ADD https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata /usr/share/tessdata/eng.traineddata
-ADD https://github.com/tesseract-ocr/tessdata/raw/master/ces.traineddata /usr/share/tessdata/ces.traineddata
-ADD https://github.com/tesseract-ocr/tessdata/raw/master/slk.traineddata /usr/share/tessdata/slk.traineddata
+ADD https://github.com/tesseract-ocr/tessdata/blob/master/eng.traineddata /usr/share/tessdata/eng.traineddata
+ADD https://github.com/tesseract-ocr/tessdata/blob/master/ces.traineddata /usr/share/tessdata/ces.traineddata
+ADD https://github.com/tesseract-ocr/tessdata/blob/master/slk.traineddata /usr/share/tessdata/slk.traineddata
 
 # Set the name of the jar
 ENV APP_FILE ocrApi-0.0.1-SNAPSHOT.jar

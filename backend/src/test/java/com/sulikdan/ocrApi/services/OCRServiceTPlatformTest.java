@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.sulikdan.ocrApi.configurations.properties.CustomTessProperties;
+import com.sulikdan.ocrApi.services.impl.OCRServiceTPlatform;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

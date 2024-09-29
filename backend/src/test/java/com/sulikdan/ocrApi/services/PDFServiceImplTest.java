@@ -15,6 +15,7 @@ import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
 import com.sulikdan.ocrApi.services.async.PDFJobWorker;
+import com.sulikdan.ocrApi.services.impl.PDFServiceImpl;
 import com.sulikdan.ocrApi.services.wrappers.PDDocumentWrapper;
 import java.awt.image.BufferedImage;
 import java.io.File;

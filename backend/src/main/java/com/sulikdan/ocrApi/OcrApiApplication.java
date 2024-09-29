@@ -1,7 +1,8 @@
 package com.sulikdan.ocrApi;
 
 import com.sulikdan.ocrApi.services.FileStorageService;
-import javax.annotation.Resource;
+
+import com.sulikdan.ocrApi.services.impl.FileStorageServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,7 +17,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 public class OcrApiApplication implements CommandLineRunner {
 
-    @Resource
     FileStorageService fileStorageService;
 
 //  public static String pathToTessdata = "empty";
@@ -27,6 +27,7 @@ public class OcrApiApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        fileStorageService = new FileStorageServiceImpl();
         fileStorageService.deleteAllFiles();
         fileStorageService.init();
     }

@@ -16,12 +16,13 @@ springdoc:
 
 server:
   port: 8086
-  address: 127.0.0.1
+  address: localhost
   servlet:
     context-path: /api/ocr
 
 tesseract:
-  path: "src/main/resources/tessdata"
+  path: "E:/IT-Projects/master_thesis/ocr/docs-archive-ocr-api/backend/src/main/resources/tessdata"
+#  path: "src/main/resources/tessdata"
 
 logging:
   level:
