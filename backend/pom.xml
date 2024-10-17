@@ -10,8 +10,10 @@
     <description>OCR API using spring boot</description>
 
     <properties>
-        <java.versio>17</java.versio>
+        <java.versio>21</java.versio>
         <spring.versions>3.3.4</spring.versions>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <dependencies>

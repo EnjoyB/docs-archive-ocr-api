@@ -21,7 +21,8 @@ server:
     context-path: /api/ocr
 
 tesseract:
-  path: "E:/IT-Projects/master_thesis/ocr/docs-archive-ocr-api/backend/src/main/resources/tessdata"
+  path: "D:/Daniel/Projects/docs-archive-ocr-api/backend/src/main/resources/tessdata"
+#  path: "E:/IT-Projects/master_thesis/ocr/docs-archive-ocr-api/backend/src/main/resources/tessdata"
 #  path: "src/main/resources/tessdata"
 
 logging:
