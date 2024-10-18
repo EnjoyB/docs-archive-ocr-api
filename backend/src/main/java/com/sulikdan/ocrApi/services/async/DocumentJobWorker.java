@@ -6,8 +6,9 @@ import com.sulikdan.ocrApi.entities.DocumentProcessStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
-import java.nio.file.Path;
 import org.springframework.scheduling.annotation.Async;
+
+import java.nio.file.Path;
 
 /**
  * Created by Daniel Šulik on 09-Jul-20
@@ -58,7 +59,7 @@ public class DocumentJobWorker implements Runnable {
         documentAsyncStatus.setDocumentProcessStatus(DocumentProcessStatus.SCANNED);
 
         // Updating result to be available to requester
-        documentStorageService.getDocumentMap().put(fileNameOnServer, resultDoc);
+        documentStorageService.putDocumentToSyncMap(fileNameOnServer, resultDoc);
 
         // Deleting file
         fileStorageService.deleteFile(savedFilePath);

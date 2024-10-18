@@ -1,15 +1,5 @@
 package com.sulikdan.ocrApi.controllers;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
@@ -19,10 +9,6 @@ import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.PDFService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +22,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class PDFControllerTest {
@@ -99,15 +95,15 @@ class PDFControllerTest {
 
         ConcurrentHashMap<String, DocumentAsyncStatus> map = new ConcurrentHashMap<>();
 
-        when(documentStorageService.getDocumentMap()).thenReturn(hashMap);
-        when(documentStorageService.getDocumentMap()).thenReturn(hashMap);
+        when(documentStorageService.getDocumentSyncMap()).thenReturn(hashMap);
+        when(documentStorageService.getDocumentSyncMap()).thenReturn(hashMap);
         when(documentStorageService.getDocumentAsyncMap()).thenReturn(map);
 
         // when
         this.mockMvc.perform(delete("/pdfs/{fileName}", "foo")).andExpect(status().isNoContent());
 
         // then
-        verify(documentStorageService, times(2)).getDocumentMap();
+        verify(documentStorageService, times(2)).getDocumentSyncMap();
         verify(documentStorageService, times(1)).getDocumentAsyncMap();
     }
 
@@ -117,7 +113,7 @@ class PDFControllerTest {
         ConcurrentHashMap<String, Document> hashMap = new ConcurrentHashMap<>();
         Document d = null;
 
-        when(documentStorageService.getDocumentMap()).thenReturn(hashMap);
+        when(documentStorageService.getDocumentSyncMap()).thenReturn(hashMap);
 
         // when
         MvcResult mvcResult =
@@ -136,7 +132,7 @@ class PDFControllerTest {
         Document d = new Document("foo", "yolo.com", new ArrayList<>());
         hashMap.put(d.getName(), d);
 
-        when(documentStorageService.getDocumentMap()).thenReturn(hashMap);
+        when(documentStorageService.getDocumentSyncMap()).thenReturn(hashMap);
 
         // when
         MvcResult mvcResult =

@@ -7,12 +7,13 @@ import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.PDFService;
+import org.springframework.scheduling.annotation.Async;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.scheduling.annotation.Async;
 
 /**
  * Created by Daniel Šulik on 12-Jul-20
@@ -87,7 +88,7 @@ public class PDFJobWorker implements Runnable {
         documentAsyncStatus.setDocumentProcessStatus(DocumentProcessStatus.SCANNED);
 
         // Updating result to be available to requester
-        documentStorageService.getDocumentMap().put(fileNameOnServer, resultDoc);
+        documentStorageService.putDocumentToSyncMap(fileNameOnServer, resultDoc);
 
         // Deleting file
         fileStorageService.deleteFile(savedFilePath);

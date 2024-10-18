@@ -2,32 +2,19 @@ package com.sulikdan.ocrApi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
-import com.sulikdan.ocrApi.services.FileStorageService;
-import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.PDFService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * Created by Daniel Šulik on 11-Jul-20
@@ -40,23 +27,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("pdfs")
 public class PDFController extends SharedControllerLogic {
 
+    private final ImgDocumentController imgDocumentController;
     private final DocumentStorageService documentStorageService;
-    private final OCRService ocrService;
-    private final FileStorageService fileStorageService;
     private final PDFService pdfService;
     private final ObjectMapper mapper = new ObjectMapper();
-    private TaskExecutor taskExecutor;
 
     public PDFController(
-        TaskExecutor taskExecutor,
-        DocumentStorageService documentStorageService,
-        OCRService ocrService,
-        FileStorageService fileStorageService,
-        PDFService pdfService) {
-        this.taskExecutor = taskExecutor;
+            ImgDocumentController imgDocumentController,
+            DocumentStorageService documentStorageService,
+            PDFService pdfService) {
+        this.imgDocumentController = imgDocumentController;
         this.documentStorageService = documentStorageService;
-        this.ocrService = ocrService;
-        this.fileStorageService = fileStorageService;
         this.pdfService = pdfService;
     }
 
@@ -74,23 +55,23 @@ public class PDFController extends SharedControllerLogic {
     @ResponseBody
     @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadAndExtractTextAsync(
-        @RequestPart("files") MultipartFile[] files,
-        @RequestParam(value = "lang", defaultValue = "eng") String lang,
-        @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
-        @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
-        throws JsonProcessingException {
+            @RequestPart("files") MultipartFile[] files,
+            @RequestParam(value = "lang", defaultValue = "eng") String lang,
+            @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+            @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
+            throws JsonProcessingException {
 
         lang = checkAndParseSupportedLanguages(lang);
         OcrConfig ocrConfig =
-            OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality)
-                .build();
+                OcrConfig.builder().lang(lang).multiPages(multiPageFile).highQuality(highQuality)
+                        .build();
 
         List<DocumentAsyncStatus> documentAsyncStatusList = pdfService.processPDFs(files,
-            ocrConfig);
+                ocrConfig);
 
-        log.info("Finnishing in PDF async controller!");
+        log.info("Finishing in PDF async controller!");
         return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writeValueAsString(documentAsyncStatusList));
+                .body(mapper.writeValueAsString(documentAsyncStatusList));
     }
 
     /**
@@ -100,11 +81,11 @@ public class PDFController extends SharedControllerLogic {
      */
     @Operation(summary = "Deletes document defined by file-name.")
     @DeleteMapping("/{fileName}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     public void deleteDocument(@PathVariable String fileName) {
         // TODO reuse ImgDocumentController?
-        if (documentStorageService.getDocumentMap().containsKey(fileName)) {
-            documentStorageService.getDocumentMap().remove(fileName);
+        if (documentStorageService.containsDocumentSync(fileName)) {
+            documentStorageService.removeDocumentFromSyncMap(fileName);
             documentStorageService.getDocumentAsyncMap().remove(fileName);
         }
     }
@@ -119,15 +100,8 @@ public class PDFController extends SharedControllerLogic {
     @Operation(summary = "Returns scanned document.")
     @GetMapping("/{fileName}")
     public ResponseEntity<?> getDocument(@PathVariable String fileName)
-        throws JsonProcessingException {
-        // TODO reuse ImgDocumentController?
-        Document document = documentStorageService.getDocumentMap().get(fileName);
-
-        if (document != null) {
-            return ResponseEntity.ok(mapper.writeValueAsString(document));
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+            throws JsonProcessingException {
+        return imgDocumentController.getDocument(fileName);
     }
 
     /**
@@ -140,10 +114,10 @@ public class PDFController extends SharedControllerLogic {
     @Operation(summary = "Returns a document-status of the document's file processing.")
     @GetMapping("/{fileName}/documentStatus")
     public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName)
-        throws JsonProcessingException {
+            throws JsonProcessingException {
         // TODO reuse ImgDocumentController?
         DocumentAsyncStatus documentAsyncStatus =
-            documentStorageService.getDocumentAsyncMap().get(fileName);
+                documentStorageService.getDocumentAsyncMap().get(fileName);
 
         if (documentAsyncStatus != null) {
             return ResponseEntity.ok(mapper.writeValueAsString(documentAsyncStatus));

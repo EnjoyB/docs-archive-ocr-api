@@ -9,17 +9,16 @@ import com.sulikdan.ocrApi.services.FileStorageService;
 import com.sulikdan.ocrApi.services.OCRService;
 import com.sulikdan.ocrApi.services.async.DocumentJobWorker;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Daniel Šulik on 16-Aug-20
@@ -58,21 +57,21 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void deleteDocument(String fileName) {
-        if (documentStorageService.getDocumentMap().containsKey(fileName)) {
-            documentStorageService.getDocumentMap().remove(fileName);
+        if (documentStorageService.containsDocumentSync(fileName)) {
+            documentStorageService.removeDocumentFromSyncMap(fileName);
             documentStorageService.getDocumentAsyncMap().remove(fileName);
         }
     }
 
     @Override
     public Document getDocument(String fileName) {
-        return documentStorageService.getDocumentMap().get(fileName);
+        return documentStorageService.getDocumentFromSyncMap(fileName);
     }
 
     @Override
     public List<DocumentAsyncStatus> processDocuments(MultipartFile[] files, OcrConfig ocrConfig) {
 
-        List<DocumentAsyncStatus> documentsStatus = new ArrayList<>();
+        List<DocumentAsyncStatus> asyncStatusList = new ArrayList<>();
 
         for (MultipartFile file : files) {
             Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
@@ -92,12 +91,12 @@ public class DocumentServiceImpl implements DocumentService {
                             file.getOriginalFilename(),
                             ocrConfig));
 
-            documentsStatus.add(returnAsyncStatus);
+            asyncStatusList.add(returnAsyncStatus);
 
             documentStorageService.getDocumentAsyncMap().put(savedFileName, returnAsyncStatus);
         }
 
-        return documentsStatus;
+        return asyncStatusList;
     }
 
     @Override

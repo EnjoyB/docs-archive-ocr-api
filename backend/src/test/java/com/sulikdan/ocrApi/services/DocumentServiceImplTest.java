@@ -1,24 +1,11 @@
 package com.sulikdan.ocrApi.services;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.sulikdan.ocrApi.entities.Document;
 import com.sulikdan.ocrApi.entities.DocumentAsyncStatus;
 import com.sulikdan.ocrApi.entities.OcrConfig;
 import com.sulikdan.ocrApi.services.async.DocumentJobWorker;
 import com.sulikdan.ocrApi.services.async.DocumentStorageService;
 import com.sulikdan.ocrApi.services.async.DocumentStorageServiceImpl;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sulikdan.ocrApi.services.impl.DocumentServiceImpl;
 import com.sulikdan.ocrApi.services.impl.FileStorageServiceImpl;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +16,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 class DocumentServiceImplTest {
 
@@ -66,8 +60,8 @@ class DocumentServiceImplTest {
         final String fileName = "randomDoc";
 
         // Given
-        when(documentStorageService.getDocumentMap().containsKey(anyString())).thenReturn(true);
-        when(documentStorageService.getDocumentMap().remove(anyString())).thenReturn(this.document);
+        when(documentStorageService.getDocumentSyncMap().containsKey(anyString())).thenReturn(true);
+        when(documentStorageService.getDocumentSyncMap().remove(anyString())).thenReturn(this.document);
 
         when(documentStorageService.getDocumentAsyncMap().remove(anyString()))
             .thenReturn(this.asyncStatus);
@@ -76,8 +70,8 @@ class DocumentServiceImplTest {
         documentService.deleteDocument(fileName);
 
         // Then
-        verify(documentStorageService.getDocumentMap(), times(1)).containsKey(anyString());
-        verify(documentStorageService.getDocumentMap(), times(1)).remove(anyString());
+        verify(documentStorageService.getDocumentSyncMap(), times(1)).containsKey(anyString());
+        verify(documentStorageService.getDocumentSyncMap(), times(1)).remove(anyString());
         verify(documentStorageService.getDocumentAsyncMap(), times(1)).remove(anyString());
     }
 
@@ -86,14 +80,14 @@ class DocumentServiceImplTest {
         final String fileName = "randomDoc";
 
         // Given
-        when(documentStorageService.getDocumentMap().containsKey(anyString())).thenReturn(false);
+        when(documentStorageService.getDocumentSyncMap().containsKey(anyString())).thenReturn(false);
 
         // When
         documentService.deleteDocument(fileName);
 
         // Then
-        verify(documentStorageService.getDocumentMap(), times(1)).containsKey(anyString());
-        verify(documentStorageService.getDocumentMap(), times(0)).remove(anyString());
+        verify(documentStorageService.getDocumentSyncMap(), times(1)).containsKey(anyString());
+        verify(documentStorageService.getDocumentSyncMap(), times(0)).remove(anyString());
         verify(documentStorageService.getDocumentAsyncMap(), times(0)).remove(anyString());
     }
 
@@ -102,13 +96,13 @@ class DocumentServiceImplTest {
         // given
         final String fileName = "randomDoc";
 
-        when(documentStorageService.getDocumentMap().get(anyString())).thenReturn(document);
+        when(documentStorageService.getDocumentSyncMap().get(anyString())).thenReturn(document);
 
         // when
         documentService.getDocument(fileName);
 
         // then
-        verify(documentStorageService.getDocumentMap(), times(1)).get(anyString());
+        verify(documentStorageService.getDocumentSyncMap(), times(1)).get(anyString());
     }
 
     @Test
