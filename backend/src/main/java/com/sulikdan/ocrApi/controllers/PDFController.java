@@ -82,7 +82,7 @@ public class PDFController extends SharedControllerLogic {
     @Operation(summary = "Deletes document defined by file-name.")
     @DeleteMapping("/{fileName}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteDocument(@PathVariable String fileName) {
+    public void deleteDocument(@PathVariable("fileName") String fileName) {
         // TODO reuse ImgDocumentController?
         if (documentStorageService.containsDocumentSync(fileName)) {
             documentStorageService.removeDocumentFromSyncMap(fileName);
@@ -99,7 +99,7 @@ public class PDFController extends SharedControllerLogic {
      */
     @Operation(summary = "Returns scanned document.")
     @GetMapping("/{fileName}")
-    public ResponseEntity<?> getDocument(@PathVariable String fileName)
+    public ResponseEntity<?> getDocument(@PathVariable("fileName") String fileName)
             throws JsonProcessingException {
         return imgDocumentController.getDocument(fileName);
     }
@@ -113,7 +113,7 @@ public class PDFController extends SharedControllerLogic {
      */
     @Operation(summary = "Returns a document-status of the document's file processing.")
     @GetMapping("/{fileName}/documentStatus")
-    public ResponseEntity<?> getDocumentStatus(@PathVariable String fileName)
+    public ResponseEntity<?> getDocumentStatus(@PathVariable("fileName") String fileName)
             throws JsonProcessingException {
         // TODO reuse ImgDocumentController?
         DocumentAsyncStatus documentAsyncStatus =

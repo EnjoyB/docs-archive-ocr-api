@@ -100,7 +100,7 @@ public class ImgDocumentController extends SharedControllerLogic {
     @Operation(summary = "Deletes uploaded file from server.")
     @DeleteMapping("/{fileName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteDocument(@PathVariable @NotBlank String fileName) {
+    public void deleteDocument(@PathVariable("fileName") @NotBlank String fileName) {
 
         documentService.deleteDocument(fileName);
 
@@ -115,7 +115,7 @@ public class ImgDocumentController extends SharedControllerLogic {
      */
     @Operation(summary = "Returns scanned solution for file.")
     @GetMapping(value = "/{fileName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getDocument(@PathVariable @NotBlank String fileName)
+    public ResponseEntity<?> getDocument(@PathVariable("fileName") @NotBlank String fileName)
             throws JsonProcessingException {
         Document toRet = null;
 
@@ -137,7 +137,7 @@ public class ImgDocumentController extends SharedControllerLogic {
      */
     @Operation(summary = "Returns status of a document/file being processed.")
     @GetMapping(value = "/{fileName}/documentStatus", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getDocumentStatus(@PathVariable @NotBlank String fileName)
+    public ResponseEntity<?> getDocumentStatus(@PathVariable("fileName") @NotBlank String fileName)
             throws JsonProcessingException {
         log.info("Called get status");
         DocumentAsyncStatus documentAsyncStatus = documentStorageService.getDocumentAsyncMap()
