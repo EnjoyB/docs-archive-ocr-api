@@ -18,7 +18,6 @@ import {MatButton, MatIconButton} from "@angular/material/button";
 
 @Component({
   selector: 'app-drag-and-drop-or-select',
-  standalone: true,
   imports: [
     MatIcon,
     MatTable,
@@ -39,6 +38,7 @@ import {MatButton, MatIconButton} from "@angular/material/button";
     MatPrefix
   ],
   templateUrl: './drag-and-drop-or-select.component.html',
+  standalone: true,
   styleUrl: './drag-and-drop-or-select.component.sass'
 })
 export class DragAndDropOrSelectComponent {
@@ -72,6 +72,6 @@ export class DragAndDropOrSelectComponent {
   }
 
   handleFileInputChange(files: FileList | null) {
-    
+
   }
 }

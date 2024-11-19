@@ -10,9 +10,9 @@ import {SpinnerDialogComponent} from "../body/shared/dialogs/spinner-dialog/spin
 
 @Component({
   selector: 'app-header',
-  standalone: true,
   imports: [MatToolbarModule, MatIcon, MatIconButton, MatButton, RouterLink],
   templateUrl: './header.component.html',
+  standalone: true,
   styleUrl: './header.component.sass'
 })
 export class HeaderComponent {

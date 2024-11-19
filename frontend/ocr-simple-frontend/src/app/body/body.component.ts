@@ -3,11 +3,11 @@ import {RouterOutlet} from "@angular/router";
 
 @Component({
   selector: 'app-body',
-  standalone: true,
   imports: [
     RouterOutlet
   ],
   templateUrl: './body.component.html',
+  standalone: true,
   styleUrl: './body.component.sass'
 })
 export class BodyComponent {

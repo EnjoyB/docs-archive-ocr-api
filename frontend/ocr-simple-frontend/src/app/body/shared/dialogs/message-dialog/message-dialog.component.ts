@@ -10,7 +10,6 @@ import {MatButton} from "@angular/material/button";
 
 @Component({
   selector: 'app-message-dialog',
-  standalone: true,
   imports: [
     MatDialogTitle,
     MatDialogContent,
@@ -18,6 +17,7 @@ import {MatButton} from "@angular/material/button";
     MatButton
   ],
   templateUrl: './message-dialog.component.html',
+  standalone: true,
   styleUrl: './message-dialog.component.sass'
 })
 export class MessageDialogComponent {
