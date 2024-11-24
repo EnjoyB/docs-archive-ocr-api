@@ -1,1 +1,30 @@
-<p>header works!</p>
+<mat-toolbar>
+  <button mat-icon-button class="icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="spacer"></span>
+
+  <h1>OCR API Simple FrontEnd</h1>
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button>
+    <mat-icon>favorite</mat-icon>
+  </button>
+
+  <button mat-icon-button>
+    <mat-icon>share</mat-icon>
+  </button>
+
+  <button mat-icon-button [matMenuTriggerFor]="accountMenu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+
+  <mat-menu #accountMenu="matMenu">
+    <button mat-menu-item>Change language En/De</button>
+    <button mat-menu-item>Logout/Login</button>
+  </mat-menu>
+
+
+</mat-toolbar>
