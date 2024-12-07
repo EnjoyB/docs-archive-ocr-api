@@ -1,6 +1,6 @@
 import {Component, OnDestroy, signal, WritableSignal} from '@angular/core';
 import {MenuStateService} from '../shared/service/menu-state.service';
-import {RouterOutlet} from '@angular/router';
+import {RouterLink, RouterOutlet} from '@angular/router';
 import {Subscription} from 'rxjs';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatButton} from '@angular/material/button';
@@ -10,7 +10,8 @@ import {MatButton} from '@angular/material/button';
   imports: [
     RouterOutlet,
     MatSidenavModule,
-    MatButton
+    MatButton,
+    RouterLink
   ],
   templateUrl: './body.component.html',
   styleUrl: './body.component.scss',
