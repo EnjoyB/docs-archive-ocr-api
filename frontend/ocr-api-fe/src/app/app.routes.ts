@@ -6,8 +6,8 @@ import {ImgControllerComponent} from './body/img-controller/img-controller.compo
 
 export const routes: Routes = [
 
-  { path: 'pdf-upload', component: PdfControllerComponent},
   { path: 'img-upload', component: ImgControllerComponent},
+  { path: 'pdf-upload', component: PdfControllerComponent},
   { path: 'manage', component: StorageControllerComponent},
   { path: 'about', component: AboutComponent},
   { path: '', component: AboutComponent}
