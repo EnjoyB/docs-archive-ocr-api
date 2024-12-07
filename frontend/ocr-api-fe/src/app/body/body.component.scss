@@ -1,0 +1,20 @@
+.m-container{
+  min-height: 160px;
+  background-color: white !important;
+}
+
+.m-sidenav-content {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+
+}
+
+.m-sidenav {
+  //display: flex;
+  //flex-direction: column;
+  width: fit-content;
+  height: 250px;
+  padding-left: 20px;
+}

@@ -1,1 +1,23 @@
-<p>body works!</p>
+<mat-sidenav-container class="m-container" autosize>
+  <mat-sidenav class="m-sidenav" #sidenav mode="side" [opened]="this.openMenu()">
+    <div>
+      <button mat-button>About</button>
+    </div>
+    <div>
+      <button mat-button>Img Upload</button>
+    </div>
+    <div>
+      <button mat-button>PDF Upload</button>
+    </div>
+    <div>
+      <button mat-button>File manager</button>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="m-sidenav-content">
+    <p>magic here</p>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+
+</mat-sidenav-container>

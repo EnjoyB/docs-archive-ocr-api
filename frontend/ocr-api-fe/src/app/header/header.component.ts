@@ -3,6 +3,7 @@ import {MatToolbar} from '@angular/material/toolbar';
 import {MatIcon} from '@angular/material/icon';
 import {MatIconButton} from '@angular/material/button';
 import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
+import {MenuStateService} from '../shared/service/menu-state.service';
 
 @Component({
   selector: 'app-header',
@@ -20,4 +21,11 @@ import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 })
 export class HeaderComponent {
 
+
+  constructor(private menuStateService: MenuStateService) {
+  }
+
+  menuClicked() {
+    this.menuStateService.changeMenuState();
+  }
 }
